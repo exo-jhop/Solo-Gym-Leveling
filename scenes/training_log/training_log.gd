@@ -111,31 +111,42 @@ func _status_for_date(date_str: String) -> CellStatus:
 	return CellStatus.MISSED
 
 
-# Functional color coding for now — replaced with the System palette in the visual polish pass.
+# System palette (spec 5): deep navy base, status colors read against it.
+const STATUS_COLOR_FULL := Color(0.204, 0.827, 0.6)
+const STATUS_COLOR_PARTIAL := Color(0.984, 0.749, 0.141)
+const STATUS_COLOR_MISSED := Color(0.949, 0.333, 0.365)
+const STATUS_COLOR_NONE := Color(0.071, 0.094, 0.165)
+const TODAY_BORDER_COLOR := Color(0.239, 0.545, 1.0)
+
+
 func _style_cell(cell: Button, status: CellStatus, is_today: bool) -> void:
 	var color: Color
 	match status:
 		CellStatus.FULL:
-			color = Color(0.2, 0.6, 0.3)
+			color = STATUS_COLOR_FULL
 		CellStatus.PARTIAL:
-			color = Color(0.7, 0.6, 0.15)
+			color = STATUS_COLOR_PARTIAL
 		CellStatus.MISSED:
-			color = Color(0.55, 0.2, 0.2)
+			color = STATUS_COLOR_MISSED
 		_:
-			color = Color(0.3, 0.3, 0.3)
-	cell.modulate = Color(1, 1, 1) if is_today else Color(0.9, 0.9, 0.9)
-	cell.add_theme_color_override("font_color", Color.WHITE)
+			color = STATUS_COLOR_NONE
+	cell.add_theme_color_override("font_color", Color(0.906, 0.925, 0.98) if status != CellStatus.NO_DATA else Color(0.486, 0.533, 0.659))
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
+	style.corner_radius_top_left = 0
+	style.corner_radius_top_right = 0
+	style.corner_radius_bottom_left = 0
+	style.corner_radius_bottom_right = 0
 	if is_today:
 		style.border_width_left = 2
 		style.border_width_right = 2
 		style.border_width_top = 2
 		style.border_width_bottom = 2
-		style.border_color = Color(0.4, 0.7, 1.0)
+		style.border_color = TODAY_BORDER_COLOR
 	cell.add_theme_stylebox_override("normal", style)
 	cell.add_theme_stylebox_override("hover", style)
 	cell.add_theme_stylebox_override("pressed", style)
+	cell.add_theme_stylebox_override("disabled", style)
 
 
 func _select_date(date_str: String) -> void:

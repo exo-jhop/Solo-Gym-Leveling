@@ -1,6 +1,8 @@
 extends Control
 
-## Stats Screen (spec 4.3): radar chart of the 5 stats + rank progress bar. Functional only.
+## Stats Screen (spec 4.3): radar chart of the 5 stats + rank progress bar.
+
+const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 
 @onready var level_rank_label: Label = $Margin/Root/LevelRankLabel
 @onready var rank_bar: ProgressBar = $Margin/Root/RankBar
@@ -12,12 +14,14 @@ extends Control
 func _ready() -> void:
 	GameManager.stats_changed.connect(_refresh)
 	back_button.pressed.connect(_go_back)
+	level_rank_label.add_theme_font_override("font", STAT_FONT)
 	_refresh()
 
 
 func _refresh() -> void:
 	var stats := GameManager.hunter_stats
 	level_rank_label.text = "Level %d — Rank %s" % [stats.level, stats.rank]
+	level_rank_label.add_theme_color_override("font_color", GameManager.rank_color(stats.rank))
 
 	var current_threshold := GameManager.current_rank_threshold()
 	var next_threshold := GameManager.next_rank_threshold()

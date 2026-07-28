@@ -6,6 +6,7 @@ extends CanvasLayer
 
 const DISPLAY_SECONDS := 2.0
 const FADE_SECONDS := 0.25
+const LEVEL_UP_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: PanelContainer = $Dim/CenterContainer/Panel
@@ -28,12 +29,12 @@ func _ready() -> void:
 
 
 func _on_leveled_up(new_level: int) -> void:
-	_queue.append({"kind": "LEVEL UP", "value": "Level %d" % new_level, "hint": "Tap to continue"})
+	_queue.append({"kind": "LEVEL UP", "value": "Level %d" % new_level, "hint": "Tap to continue", "color": LEVEL_UP_COLOR})
 	_process_queue()
 
 
 func _on_ranked_up(new_rank: String) -> void:
-	_queue.append({"kind": "RANK UP", "value": "Rank %s" % new_rank, "hint": "Tap to continue"})
+	_queue.append({"kind": "RANK UP", "value": "Rank %s" % new_rank, "hint": "Tap to continue", "color": GameManager.rank_color(new_rank)})
 	_process_queue()
 
 
@@ -49,6 +50,7 @@ func _show_popup(entry: Dictionary) -> void:
 	kind_label.text = entry.kind
 	value_label.text = entry.value
 	hint_label.text = entry.hint
+	value_label.add_theme_color_override("font_color", entry.color)
 
 	visible = true
 	dim.modulate.a = 0.0

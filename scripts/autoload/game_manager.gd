@@ -8,6 +8,17 @@ signal stats_changed
 
 const RANKS: Array[String] = ["E", "D", "C", "B", "A", "S"]
 
+# Rank badge colors, low to high: muted gray up through blue/violet, breaking into
+# gold at S to mark it as the rare, stand-apart tier (spec 5's visual direction).
+const RANK_COLORS := {
+	"E": Color(0.486, 0.533, 0.659),
+	"D": Color(0.4, 0.65, 0.95),
+	"C": Color(0.239, 0.545, 1.0),
+	"B": Color(0.65, 0.5, 0.98),
+	"A": Color(0.545, 0.361, 0.965),
+	"S": Color(1.0, 0.85, 0.35),
+}
+
 # XP totals required to reach each rank. Placeholder values, tune later (see spec 2.2).
 const RANK_XP_THRESHOLDS := {
 	"E": 0,
@@ -86,6 +97,11 @@ func _check_rank_up() -> void:
 ## XP threshold for the Hunter's current rank.
 func current_rank_threshold() -> int:
 	return RANK_XP_THRESHOLDS[hunter_stats.rank]
+
+
+## Badge color for a rank letter, for UI display (spec 5).
+func rank_color(rank: String) -> Color:
+	return RANK_COLORS.get(rank, Color.WHITE)
 
 
 ## XP threshold for the next rank, or -1 if already at the top rank (S).

@@ -1,6 +1,8 @@
 extends Control
 
-## Home / System Dashboard (spec 4.1). Functional pass only — no theme/visual polish yet.
+## Home / System Dashboard (spec 4.1).
+
+const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 
 @onready var level_rank_label: Label = $Margin/Root/LevelRankLabel
 @onready var xp_bar: ProgressBar = $Margin/Root/XPBar
@@ -17,6 +19,9 @@ func _ready() -> void:
 	stats_button.pressed.connect(_on_stats_pressed)
 	lobby_button.pressed.connect(_on_lobby_pressed)
 
+	level_rank_label.add_theme_font_override("font", STAT_FONT)
+	xp_label.add_theme_font_override("font", STAT_FONT)
+
 	_refresh_header()
 	_refresh_quests()
 
@@ -26,6 +31,7 @@ func _refresh_header() -> void:
 	var xp_needed := GameManager.xp_to_next_level(stats.level)
 
 	level_rank_label.text = "Level %d — Rank %s" % [stats.level, stats.rank]
+	level_rank_label.add_theme_color_override("font_color", GameManager.rank_color(stats.rank))
 	xp_bar.max_value = xp_needed
 	xp_bar.value = stats.xp
 	xp_label.text = "XP: %d / %d" % [stats.xp, xp_needed]

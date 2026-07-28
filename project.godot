@@ -22,6 +22,11 @@ HistoryManager="*res://scripts/autoload/history_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 SystemPopup="*res://scenes/system_popup/system_popup.tscn"
 
+[gui]
+
+theme/custom="res://resources/theme/hunter_theme.tres"
+
 [rendering]
 
 renderer/rendering_method="mobile"
+environment/defaults/default_clear_color=Color(0.039, 0.055, 0.094, 1)

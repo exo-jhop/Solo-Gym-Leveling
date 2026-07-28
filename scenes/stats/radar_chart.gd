@@ -1,14 +1,18 @@
 extends Control
 
-## Pentagon radar chart for the 5 Hunter stats (spec 4.3). Functional only, default styling.
+## Pentagon radar chart for the 5 Hunter stats (spec 4.3).
+
+const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 
 const STAT_LABELS := ["STR", "VIT", "AGI", "INT", "SENSE"]
 const RING_COUNT := 4
 const LABEL_MARGIN := 36.0
+const LABEL_FONT_SIZE := 16
 
-const GRID_COLOR := Color(0.5, 0.5, 0.5, 0.5)
-const FILL_COLOR := Color(0.3, 0.5, 1.0, 0.35)
-const LINE_COLOR := Color(0.3, 0.5, 1.0, 1.0)
+const GRID_COLOR := Color(0.239, 0.545, 1.0, 0.2)
+const FILL_COLOR := Color(0.545, 0.361, 0.965, 0.3)
+const LINE_COLOR := Color(0.239, 0.545, 1.0, 1.0)
+const LABEL_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 
 var _values: Array = [10, 10, 10, 10, 10]
 
@@ -41,8 +45,8 @@ func _draw() -> void:
 		draw_polyline(points, GRID_COLOR, 1.0)
 
 	# axis lines + labels
-	var font := ThemeDB.fallback_font
-	var font_size := ThemeDB.fallback_font_size
+	var font := STAT_FONT
+	var font_size := LABEL_FONT_SIZE
 	for i in range(axis_count):
 		var angle := -PI / 2.0 + i * angle_step
 		var axis_point := center + Vector2(cos(angle), sin(angle)) * radius
@@ -51,7 +55,7 @@ func _draw() -> void:
 		var label_point := center + Vector2(cos(angle), sin(angle)) * (radius + LABEL_MARGIN * 0.6)
 		var label_text := "%s %d" % [STAT_LABELS[i], _values[i]]
 		var text_size := font.get_string_size(label_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
-		draw_string(font, label_point - text_size / 2.0, label_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
+		draw_string(font, label_point - text_size / 2.0, label_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, LABEL_COLOR)
 
 	# value polygon
 	var value_points := PackedVector2Array()
