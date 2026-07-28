@@ -5,6 +5,10 @@ extends Node
 const SAVE_PATH := "user://save_data.json"
 const SAVE_VERSION := 1
 
+# Cap on how many missed-day history entries a single startup will backfill, so a
+# long reinstall/uninstall gap doesn't generate hundreds of DailyLog entries at once.
+const MAX_BACKFILL_DAYS := 30
+
 var last_opened_date: String = ""
 
 
@@ -31,9 +35,11 @@ func save_game() -> void:
 		"current_quests": quest_dicts,
 		"history": HistoryManager.to_dict(),
 		"personal_records": PRTracker.to_dict(),
+		"pr_history": PRTracker.to_history_dict(),
 		"training_cycle": training_cycle_dicts,
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
+		"hunter_profile": ProfileManager.profile.to_dict(),
 		"low_energy_mode": QuestManager.low_energy_mode,
 		"reminder_hours": NotificationManager.reminder_hours,
 		"reminder_enabled_map": NotificationManager.reminder_enabled,
@@ -78,6 +84,7 @@ func load_game() -> bool:
 
 	HistoryManager.days = HistoryManager.from_dict(data.get("history", {}))
 	PRTracker.personal_records = PRTracker.from_dict(data.get("personal_records", {}))
+	PRTracker.pr_history = PRTracker.from_history_dict(data.get("pr_history", {}))
 
 	if data.has("training_cycle"):
 		var training_cycle: Array[TrainingDay] = []
@@ -87,6 +94,13 @@ func load_game() -> bool:
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
+
+	# Migration (spec v4 6): a save from before HunterProfile existed has no "hunter_profile"
+	# key at all. Build one from what's already known instead of reopening full onboarding.
+	if data.has("hunter_profile"):
+		ProfileManager.profile = HunterProfile.from_dict(data["hunter_profile"])
+	else:
+		ProfileManager.migrate_legacy_save()
 
 	# Legacy flat single-reminder saves (pre-v3): fold into the "general" category.
 	if data.has("reminder_hour"):
@@ -120,8 +134,36 @@ func check_new_day() -> void:
 
 	print("SaveManager: new day detected (was %s, now %s)" % [last_opened_date if last_opened_date != "" else "never", today])
 	if last_opened_date != "":
-		GameManager.evaluate_streak()
+		var days_gap := _days_between(last_opened_date, today)
+		GameManager.evaluate_streak(days_gap)
 		HistoryManager.record_day(last_opened_date, QuestManager.current_quests, QuestManager.low_energy_mode)
+
+		var missed_days := mini(days_gap - 1, MAX_BACKFILL_DAYS)
+		if days_gap - 1 > MAX_BACKFILL_DAYS:
+			print("SaveManager: gap of %d days exceeds backfill cap, only backfilling %d" % [days_gap - 1, MAX_BACKFILL_DAYS])
+		for i in range(1, missed_days + 1):
+			HistoryManager.record_missed_day(_date_plus_days(last_opened_date, i))
+
 	QuestManager.generate_daily_quests()
 	last_opened_date = today
 	save_game()
+
+
+## Converts a "YYYY-MM-DD" date string to a unix timestamp at midnight, for date arithmetic.
+func _date_string_to_unix(date_str: String) -> float:
+	var parts := date_str.split("-")
+	return Time.get_unix_time_from_datetime_dict({
+		"year": parts[0].to_int(), "month": parts[1].to_int(), "day": parts[2].to_int(),
+		"hour": 0, "minute": 0, "second": 0,
+	})
+
+
+## Number of whole calendar days between two "YYYY-MM-DD" dates (positive if date_b is later).
+func _days_between(date_a: String, date_b: String) -> int:
+	return int(round((_date_string_to_unix(date_b) - _date_string_to_unix(date_a)) / 86400.0))
+
+
+## Returns the date string `days` calendar days after `date_str`.
+func _date_plus_days(date_str: String, days: int) -> String:
+	var d := Time.get_datetime_dict_from_unix_time(_date_string_to_unix(date_str) + days * 86400)
+	return "%04d-%02d-%02d" % [d.year, d.month, d.day]

@@ -6,16 +6,81 @@ extends Control
 ## persists it via SaveManager. Program changes take effect starting the next daily
 ## quest generation, same as any other program edit.
 
-@onready var protein_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/ProteinRow/ProteinInput
-@onready var creatine_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/CreatineRow/CreatineInput
-@onready var reminder_list: VBoxContainer = $Margin/Root/Scroll/Content/NotificationSection/ReminderList
+@onready var goal_input: OptionButton = $Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/GoalRow/GoalInput
+@onready var weight_input: SpinBox = $Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/WeightRow/WeightInput
+@onready var days_input: SpinBox = $Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/DaysRow/DaysInput
+@onready var equipment_input: OptionButton = $Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/EquipmentRow/EquipmentInput
+@onready var calculated_label: Label = $Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/CalculatedLabel
+@onready var protein_input: SpinBox = $Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/ProteinRow/ProteinInput
+@onready var creatine_input: SpinBox = $Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/CreatineRow/CreatineInput
+@onready var reminder_list: VBoxContainer = $Margin/Root/Scroll/Content/NotificationCard/NotificationCardMargin/NotificationSection/ReminderList
 @onready var program_list: VBoxContainer = $Margin/Root/Scroll/Content/ProgramSection/ProgramList
+@onready var regenerate_button: Button = $Margin/Root/Scroll/Content/ProgramSection/RegenerateButton
+@onready var regenerate_confirm: ConfirmationDialog = $RegenerateConfirm
 @onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var save_button: Button = $Margin/Root/ButtonRow/SaveButton
-@onready var back_button: Button = $Margin/Root/ButtonRow/BackButton
+@onready var back_button: Button = $BackButton
+@onready var profile_card: PanelContainer = $Margin/Root/Scroll/Content/ProfileCard
+@onready var nutrition_card: PanelContainer = $Margin/Root/Scroll/Content/NutritionCard
+@onready var notification_card: PanelContainer = $Margin/Root/Scroll/Content/NotificationCard
+
+const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
+const DIVIDER_COLOR := Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C
+const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "bottom": 10.0}
+
+
+# Same chamfered nav-button treatment as lobby.gd's helper of the same name.
+func _apply_chamfered_button_style(button: Button) -> void:
+	var normal := ChamferedStyleBox.new()
+	normal.border_color = DIVIDER_COLOR
+	normal.accent_color = PRIMARY_ACCENT
+	normal.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	normal.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	normal.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	normal.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	var hover := ChamferedStyleBox.new()
+	hover.border_color = PRIMARY_ACCENT
+	hover.accent_color = PRIMARY_ACCENT
+	hover.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	hover.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	hover.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	hover.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	var pressed := ChamferedStyleBox.new()
+	pressed.fill_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.18)
+	pressed.border_color = PRIMARY_ACCENT
+	pressed.accent_color = PRIMARY_ACCENT
+	pressed.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	pressed.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	pressed.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	pressed.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", hover)
 
 
 func _ready() -> void:
+	for card in [profile_card, nutrition_card, notification_card]:
+		card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
+	_apply_chamfered_button_style(save_button)
+	_apply_chamfered_button_style(back_button)
+	for goal in ProfileManager.GOALS:
+		goal_input.add_item(ProfileManager.GOAL_LABELS[goal])
+	goal_input.selected = ProfileManager.GOALS.find(ProfileManager.profile.goal)
+	weight_input.value = ProfileManager.profile.weight_kg
+	days_input.value = ProfileManager.profile.days_per_week
+	for equipment in ProfileManager.EQUIPMENT_OPTIONS:
+		equipment_input.add_item(ProfileManager.EQUIPMENT_LABELS[equipment])
+	equipment_input.selected = ProfileManager.EQUIPMENT_OPTIONS.find(ProfileManager.profile.equipment_access)
+
+	goal_input.item_selected.connect(_on_goal_selected)
+	weight_input.value_changed.connect(_on_weight_changed)
+	days_input.value_changed.connect(_on_days_changed)
+	equipment_input.item_selected.connect(_on_equipment_selected)
+
 	protein_input.value = QuestManager.protein_target_g
 	creatine_input.value = QuestManager.creatine_target_g
 	protein_input.value_changed.connect(_on_protein_changed)
@@ -23,8 +88,56 @@ func _ready() -> void:
 	save_button.pressed.connect(_on_save_pressed)
 	back_button.pressed.connect(_go_back)
 
+	regenerate_button.pressed.connect(_on_regenerate_pressed)
+	regenerate_confirm.confirmed.connect(_on_regenerate_confirmed)
+
 	_refresh_reminders()
 	_refresh_program()
+	_refresh_calculated()
+
+
+func _on_goal_selected(index: int) -> void:
+	ProfileManager.profile.goal = ProfileManager.GOALS[index]
+	_refresh_calculated()
+
+
+func _on_weight_changed(value: float) -> void:
+	ProfileManager.profile.weight_kg = value
+	_refresh_calculated()
+
+
+func _on_days_changed(value: float) -> void:
+	ProfileManager.profile.days_per_week = int(value)
+
+
+func _on_equipment_selected(index: int) -> void:
+	ProfileManager.profile.equipment_access = ProfileManager.EQUIPMENT_OPTIONS[index]
+
+
+## Regeneration discards any manual program edits, so it only ever runs after explicit
+## confirmation — never silently when goal/days/equipment change elsewhere in Settings.
+func _on_regenerate_pressed() -> void:
+	regenerate_confirm.popup_centered()
+
+
+func _on_regenerate_confirmed() -> void:
+	var profile := ProfileManager.profile
+	QuestManager.training_cycle = ProgramGenerator.generate_program(profile.days_per_week, profile.goal, profile.equipment_access)
+	_refresh_program()
+	status_label.text = "Program regenerated — press Save to keep it."
+
+
+## Live preview of the protein target/calorie direction the profile currently
+## calculates to (spec 3: "recalculates targets immediately on save" — shown live
+## here, actually applied to QuestManager on Save so it doesn't jump mid-edit).
+func _refresh_calculated() -> void:
+	var profile := ProfileManager.profile
+	if profile.weight_kg <= 0.0:
+		calculated_label.text = "Enter your weight to see calculated targets."
+		return
+	var protein := profile.calculate_protein_target_g()
+	var direction_text: String = ProfileManager.CALORIE_DIRECTION_LABELS[profile.calorie_direction()]
+	calculated_label.text = "Calculated protein target: %dg/day\n%s" % [int(protein), direction_text]
 
 
 func _on_protein_changed(value: float) -> void:
@@ -138,12 +251,34 @@ func _build_exercise_row(day: TrainingDay, exercise_index: int) -> Control:
 	reps_input.text_changed.connect(func(new_text: String): exercise.rep_range = new_text)
 	row.add_child(reps_input)
 
+	var alternatives := ExerciseCatalog.get_alternatives(exercise.name)
+	var swap_button := Button.new()
+	swap_button.text = "Swap"
+	swap_button.disabled = alternatives.is_empty()
+	swap_button.pressed.connect(_on_swap_exercise.bind(exercise, alternatives, swap_button))
+	row.add_child(swap_button)
+
 	var remove_button := Button.new()
 	remove_button.text = "X"
 	remove_button.pressed.connect(_on_remove_exercise.bind(day, exercise_index))
 	row.add_child(remove_button)
 
 	return row
+
+
+## Small picker (spec 4.5 program editing) offering same-muscle-group alternatives
+## to the exercise in this row. Only the name field changes; sets/rep range stay.
+func _on_swap_exercise(exercise: Exercise, alternatives: Array[String], anchor: Control) -> void:
+	var popup := PopupMenu.new()
+	for alt_name in alternatives:
+		popup.add_item(alt_name)
+	popup.id_pressed.connect(func(id: int):
+		exercise.name = alternatives[id]
+		_refresh_program()
+	)
+	popup.popup_hide.connect(popup.queue_free)
+	add_child(popup)
+	popup.popup(Rect2(anchor.global_position, Vector2(220, 0)))
 
 
 func _on_add_exercise(day: TrainingDay) -> void:
@@ -161,6 +296,8 @@ func _on_remove_exercise(day: TrainingDay, exercise_index: int) -> void:
 
 
 func _on_save_pressed() -> void:
+	ProfileManager.apply_targets()
+	protein_input.value = QuestManager.protein_target_g
 	SaveManager.save_game()
 	status_label.text = "Saved."
 

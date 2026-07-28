@@ -1,0 +1,233 @@
+[gd_resource type="Theme" load_steps=16 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-SemiBold.ttf" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/Inter-Regular.ttf" id="2"]
+
+[sub_resource type="FontVariation" id="FontVariation_header"]
+base_font = ExtResource("1")
+spacing_glyph = 1
+
+[sub_resource type="FontVariation" id="FontVariation_body"]
+base_font = ExtResource("2")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.164706, 0.227451, 0.360784, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.164706, 0.227451, 0.360784, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.721569, 1.0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+bg_color = Color(0.0, 0.721569, 1.0, 0.18)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.721569, 1.0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_disabled"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.164706, 0.227451, 0.360784, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_floating_btn_normal"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.721569, 1.0, 0.65)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+shadow_size = 10
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_floating_btn_hover"]
+bg_color = Color(0.0980392, 0.133333, 0.211765, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.721569, 1.0, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+shadow_color = Color(0.0, 0.721569, 1.0, 0.35)
+shadow_size = 12
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_floating_btn_pressed"]
+bg_color = Color(0.0, 0.721569, 1.0, 0.28)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.721569, 1.0, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+shadow_color = Color(0.0, 0.0, 0.0, 0.3)
+shadow_size = 6
+shadow_offset = Vector2(0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_bg"]
+bg_color = Color(0.0745098, 0.101961, 0.168627, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.164706, 0.227451, 0.360784, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_fill"]
+bg_color = Color(0.0, 0.721569, 1.0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[resource]
+default_font = SubResource("FontVariation_body")
+default_font_size = 15
+
+Label/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+Label/fonts/font = SubResource("FontVariation_body")
+
+Button/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+Button/colors/font_hover_color = Color(0.0, 0.721569, 1.0, 1)
+Button/colors/font_pressed_color = Color(0.0, 0.721569, 1.0, 1)
+Button/colors/font_focus_color = Color(0.909804, 0.929412, 0.968627, 1)
+Button/colors/font_disabled_color = Color(0.482353, 0.541176, 0.682353, 1)
+Button/fonts/font = SubResource("FontVariation_body")
+Button/styles/normal = SubResource("StyleBoxFlat_btn_normal")
+Button/styles/hover = SubResource("StyleBoxFlat_btn_hover")
+Button/styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+Button/styles/disabled = SubResource("StyleBoxFlat_btn_disabled")
+Button/styles/focus = SubResource("StyleBoxFlat_btn_hover")
+
+CheckBox/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+CheckBox/colors/font_hover_color = Color(0.0, 0.721569, 1.0, 1)
+CheckBox/colors/font_pressed_color = Color(0.0, 0.721569, 1.0, 1)
+CheckBox/colors/font_disabled_color = Color(0.482353, 0.541176, 0.682353, 1)
+CheckBox/fonts/font = SubResource("FontVariation_body")
+
+Panel/styles/panel = SubResource("StyleBoxFlat_card")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_card")
+
+ProgressBar/styles/background = SubResource("StyleBoxFlat_progress_bg")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_progress_fill")
+ProgressBar/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+ProgressBar/fonts/font = SubResource("FontVariation_body")
+
+HeaderLabel/base_type = &"Label"
+HeaderLabel/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+HeaderLabel/fonts/font = SubResource("FontVariation_header")
+HeaderLabel/font_sizes/font_size = 22
+
+SecondaryLabel/base_type = &"Label"
+SecondaryLabel/colors/font_color = Color(0.482353, 0.541176, 0.682353, 1)
+SecondaryLabel/fonts/font = SubResource("FontVariation_body")
+SecondaryLabel/font_sizes/font_size = 13
+
+AccentLabel/base_type = &"Label"
+AccentLabel/colors/font_color = Color(0.0, 0.721569, 1.0, 1)
+AccentLabel/fonts/font = SubResource("FontVariation_header")
+AccentLabel/font_sizes/font_size = 16
+
+WarningLabel/base_type = &"Label"
+WarningLabel/colors/font_color = Color(1.0, 0.419608, 0.207843, 1)
+WarningLabel/fonts/font = SubResource("FontVariation_header")
+WarningLabel/font_sizes/font_size = 16
+
+GoldLabel/base_type = &"Label"
+GoldLabel/colors/font_color = Color(1.0, 0.721569, 0.0, 1)
+GoldLabel/fonts/font = SubResource("FontVariation_header")
+GoldLabel/font_sizes/font_size = 16
+
+FloatingButton/base_type = &"Button"
+FloatingButton/colors/font_color = Color(0.909804, 0.929412, 0.968627, 1)
+FloatingButton/colors/font_hover_color = Color(0.0, 0.721569, 1.0, 1)
+FloatingButton/colors/font_pressed_color = Color(0.0, 0.721569, 1.0, 1)
+FloatingButton/colors/font_focus_color = Color(0.909804, 0.929412, 0.968627, 1)
+FloatingButton/fonts/font = SubResource("FontVariation_header")
+FloatingButton/font_sizes/font_size = 15
+FloatingButton/styles/normal = SubResource("StyleBoxFlat_floating_btn_normal")
+FloatingButton/styles/hover = SubResource("StyleBoxFlat_floating_btn_hover")
+FloatingButton/styles/pressed = SubResource("StyleBoxFlat_floating_btn_pressed")
+FloatingButton/styles/focus = SubResource("StyleBoxFlat_floating_btn_hover")

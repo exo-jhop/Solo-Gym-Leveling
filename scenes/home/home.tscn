@@ -1,73 +1,224 @@
-[gd_scene load_steps=2 format=3 uid="uid://dqf6r8n2h5x3k"]
+[gd_scene load_steps=4 format=3 uid="uid://dqf6r8n2h5x3k"]
 
 [ext_resource type="Script" path="res://scenes/home/home.gd" id="1"]
+[ext_resource type="Theme" path="res://themes/system_theme.tres" id="2"]
+[ext_resource type="Script" path="res://scenes/stats/radar_chart.gd" id="3"]
 
 [node name="Home" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource("2")
 script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.0392157, 0.054902, 0.0901961, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
-[node name="Root" type="VBoxContainer" parent="Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="LevelRankLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-text = "Level 1 — Rank E"
-
-[node name="XPBar" type="ProgressBar" parent="Margin/Root"]
-layout_mode = 2
-show_percentage = false
-
-[node name="XPLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-text = "XP: 0 / 100"
-
-[node name="StreakLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-text = "Streak: 0 day(s)  |  1 freeze(s) left"
-
-[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
 
-[node name="QuestsHeaderLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-text = "Today's Quests"
-
-[node name="LowEnergyToggle" type="CheckBox" parent="Margin/Root"]
-layout_mode = 2
-text = "Feeling low energy today? (reduce sets)"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Margin/Root"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="QuestList" type="VBoxContainer" parent="Margin/Root/ScrollContainer"]
+[node name="Root" type="VBoxContainer" parent="Margin/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 16
 
-[node name="HSeparator2" type="HSeparator" parent="Margin/Root"]
+[node name="ProfileCard" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="Margin/Root"]
+[node name="ProfileMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ProfileCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="ProfileRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="AvatarSlot" type="Control" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="InfoBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "NOVICE"
+
+[node name="StatsRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LevelLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow"]
+layout_mode = 2
+theme_type_variation = &"AccentLabel"
+text = "LV. 1"
+
+[node name="StreakPill" type="PanelContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow"]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="StreakMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 3
+
+[node name="StreakRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill/StreakMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="FlameLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill/StreakMargin/StreakRow"]
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+text = "🔥"
+
+[node name="StreakCountLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill/StreakMargin/StreakRow"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "0"
+
+[node name="RankHexSlot" type="Control" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ResetCard" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+
+[node name="ResetMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ResetCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="ResetRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ResetCard/ResetMargin"]
+layout_mode = 2
+
+[node name="ResetLabel" type="Label" parent="Margin/ScrollContainer/Root/ResetCard/ResetMargin/ResetRow"]
+layout_mode = 2
+theme_type_variation = &"AccentLabel"
+text = "RESET IN --:--:--"
+
+[node name="ResetSpacer" type="Control" parent="Margin/ScrollContainer/Root/ResetCard/ResetMargin/ResetRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DateLabel" type="Label" parent="Margin/ScrollContainer/Root/ResetCard/ResetMargin/ResetRow"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+text = "—"
+
+[node name="ResetTimer" type="Timer" parent="Margin/ScrollContainer/Root/ResetCard"]
+wait_time = 1.0
+autostart = true
+
+[node name="XPSection" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+
+[node name="XPMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/XPSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="XPBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/XPSection/XPMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TitleLabel" type="Label" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+text = "EXPERIENCE"
+
+[node name="XPBarStack" type="Control" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="XPBar" type="ProgressBar" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox/XPBarStack"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+show_percentage = false
+
+[node name="XPLabel" type="Label" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox/XPBarStack"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_type_variation = &"SecondaryLabel"
+text = "XP: 0 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RadarChart" type="Control" parent="Margin/ScrollContainer/Root"]
+custom_minimum_size = Vector2(260, 260)
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3")
+
+[node name="QuestsHeaderRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+
+[node name="QuestsTitleLabel" type="Label" parent="Margin/ScrollContainer/Root/QuestsHeaderRow"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DAILY QUESTS"
+
+[node name="QuestsHeaderSpacer" type="Control" parent="Margin/ScrollContainer/Root/QuestsHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LowEnergyToggle" type="CheckBox" parent="Margin/ScrollContainer/Root/QuestsHeaderRow"]
+layout_mode = 2
+text = "LOW ENERGY"
+
+[node name="QuestList" type="VBoxContainer" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="StatsButton" type="Button" parent="Margin/Root/ButtonRow"]
+[node name="StatsButton" type="Button" parent="Margin/ScrollContainer/Root/ButtonRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "View Stats"
 
-[node name="LobbyButton" type="Button" parent="Margin/Root/ButtonRow"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="LobbyButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -164.0
+offset_top = -76.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"FloatingButton"
 text = "Back to Lobby"

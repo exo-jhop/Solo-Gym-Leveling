@@ -13,20 +13,58 @@ const MONTH_NAMES := [
 ]
 const DAYS_IN_MONTH := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
+const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
+const DIVIDER_COLOR := Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C
+const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "bottom": 10.0}
+
 @onready var month_label: Label = $Margin/Root/HeaderRow/MonthLabel
 @onready var prev_button: Button = $Margin/Root/HeaderRow/PrevButton
 @onready var next_button: Button = $Margin/Root/HeaderRow/NextButton
 @onready var weekday_row: HBoxContainer = $Margin/Root/WeekdayRow
 @onready var calendar_grid: GridContainer = $Margin/Root/CalendarGrid
-@onready var detail_title_label: Label = $Margin/Root/DetailPanel/DetailTitleLabel
-@onready var detail_summary_label: Label = $Margin/Root/DetailPanel/DetailSummaryLabel
-@onready var detail_quest_list: VBoxContainer = $Margin/Root/DetailPanel/DetailScroll/DetailQuestList
-@onready var back_button: Button = $Margin/Root/BackButton
+@onready var detail_card: PanelContainer = $Margin/Root/DetailCard
+@onready var detail_title_label: Label = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailTitleLabel
+@onready var detail_summary_label: Label = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailSummaryLabel
+@onready var detail_quest_list: VBoxContainer = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailScroll/DetailQuestList
+@onready var back_button: Button = $BackButton
 
 var _view_year: int
 var _view_month: int  # 1-12
 var _today_str: String
 var _selected_date: String = ""
+
+
+# Same chamfered nav-button treatment as lobby.gd's helper of the same name.
+func _apply_chamfered_button_style(button: Button) -> void:
+	var normal := ChamferedStyleBox.new()
+	normal.border_color = DIVIDER_COLOR
+	normal.accent_color = PRIMARY_ACCENT
+	normal.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	normal.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	normal.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	normal.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	var hover := ChamferedStyleBox.new()
+	hover.border_color = PRIMARY_ACCENT
+	hover.accent_color = PRIMARY_ACCENT
+	hover.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	hover.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	hover.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	hover.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	var pressed := ChamferedStyleBox.new()
+	pressed.fill_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.18)
+	pressed.border_color = PRIMARY_ACCENT
+	pressed.accent_color = PRIMARY_ACCENT
+	pressed.content_margin_left = BUTTON_CONTENT_MARGIN.left
+	pressed.content_margin_top = BUTTON_CONTENT_MARGIN.top
+	pressed.content_margin_right = BUTTON_CONTENT_MARGIN.right
+	pressed.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
+
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", hover)
 
 
 func _ready() -> void:
@@ -46,6 +84,9 @@ func _ready() -> void:
 	next_button.pressed.connect(_on_next_month)
 	back_button.pressed.connect(_go_back)
 	detail_summary_label.add_theme_font_override("font", STAT_FONT)
+
+	detail_card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
+	_apply_chamfered_button_style(back_button)
 
 	_refresh_calendar()
 	_select_date(_today_str)
@@ -80,6 +121,8 @@ func _refresh_calendar() -> void:
 	var days_in_month := _days_in_month(_view_year, _view_month)
 	for day in range(1, days_in_month + 1):
 		var date_str := "%04d-%02d-%02d" % [_view_year, _view_month, day]
+		var log := _get_log_for_date(date_str)
+		var is_missed := log != null and log.is_missed
 		var has_data := _has_data_for_date(date_str)
 		var ratio := _ratio_for_date(date_str)
 
@@ -89,7 +132,7 @@ func _refresh_calendar() -> void:
 		cell.custom_minimum_size = Vector2(0, 40)
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.button_pressed = (date_str == _selected_date)
-		_style_cell(cell, has_data, ratio, date_str == _today_str)
+		_style_cell(cell, has_data, ratio, date_str == _today_str, date_str == _selected_date, is_missed)
 
 		if has_data:
 			cell.pressed.connect(_select_date.bind(date_str))
@@ -101,7 +144,7 @@ func _refresh_calendar() -> void:
 
 func _has_data_for_date(date_str: String) -> bool:
 	var log := _get_log_for_date(date_str)
-	return log != null and log.quests_total > 0
+	return log != null and (log.quests_total > 0 or log.is_missed)
 
 
 ## Fraction of that day's quests completed, 0.0 if no data (caller should
@@ -118,24 +161,40 @@ func _ratio_for_date(date_str: String) -> float:
 const HEATMAP_LOW_COLOR := Color(0.145, 0.176, 0.263)
 const HEATMAP_HIGH_COLOR := Color(0.204, 0.827, 0.6)
 const STATUS_COLOR_NONE := Color(0.071, 0.094, 0.165)
+const STATUS_COLOR_MISSED := Color(0.35, 0.129, 0.145)  # muted red: app not opened that day, distinct from "no data"
 const TODAY_BORDER_COLOR := Color(0.239, 0.545, 1.0)
 
 
-func _style_cell(cell: Button, has_data: bool, ratio: float, is_today: bool) -> void:
-	var color: Color = HEATMAP_LOW_COLOR.lerp(HEATMAP_HIGH_COLOR, ratio) if has_data else STATUS_COLOR_NONE
-	cell.add_theme_color_override("font_color", Color(0.906, 0.925, 0.98) if has_data else Color(0.486, 0.533, 0.659))
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.corner_radius_top_left = 0
-	style.corner_radius_top_right = 0
-	style.corner_radius_bottom_left = 0
-	style.corner_radius_bottom_right = 0
-	if is_today:
-		style.border_width_left = 2
-		style.border_width_right = 2
-		style.border_width_top = 2
-		style.border_width_bottom = 2
-		style.border_color = TODAY_BORDER_COLOR
+func _style_cell(cell: Button, has_data: bool, ratio: float, is_today: bool, is_selected: bool = false, is_missed: bool = false) -> void:
+	var color: Color
+	if is_missed:
+		color = STATUS_COLOR_MISSED
+	elif has_data:
+		color = HEATMAP_LOW_COLOR.lerp(HEATMAP_HIGH_COLOR, ratio)
+	else:
+		color = STATUS_COLOR_NONE
+	cell.add_theme_color_override("font_color", Color(0.906, 0.925, 0.98) if (has_data or is_missed) else Color(0.486, 0.533, 0.659))
+
+	var style: StyleBox
+	if is_today or is_selected:
+		# Today/selected cells get the chamfered card shape; a plain square heatmap
+		# tile otherwise (chamfer would read as noise across a full month grid).
+		var chamfered := ChamferedStyleBox.new()
+		chamfered.fill_color = color
+		chamfered.accent_color = TODAY_BORDER_COLOR if is_today else PRIMARY_ACCENT
+		chamfered.border_color = DIVIDER_COLOR
+		chamfered.chamfer_size = 10.0
+		chamfered.border_width = 2.0 if is_today else 1.0
+		style = chamfered
+	else:
+		var flat := StyleBoxFlat.new()
+		flat.bg_color = color
+		flat.corner_radius_top_left = 0
+		flat.corner_radius_top_right = 0
+		flat.corner_radius_bottom_left = 0
+		flat.corner_radius_bottom_right = 0
+		style = flat
+
 	cell.add_theme_stylebox_override("normal", style)
 	cell.add_theme_stylebox_override("hover", style)
 	cell.add_theme_stylebox_override("pressed", style)
@@ -174,6 +233,9 @@ func _populate_detail(date_str: String) -> void:
 		var log := _get_log_for_date(date_str)
 		if log == null:
 			detail_summary_label.text = "No data for this day."
+			return
+		if log.is_missed:
+			detail_summary_label.text = "Missed — app wasn't opened this day."
 			return
 		is_rest_day = log.is_rest_day
 		quests_total = log.quests_total

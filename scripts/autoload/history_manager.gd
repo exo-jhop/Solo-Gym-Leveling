@@ -29,6 +29,7 @@ func record_day(date: String, quests: Array[Quest], was_reduced_intensity: bool 
 			"id": quest.id,
 			"title": quest.title,
 			"category": quest.category,
+			"stat_reward": quest.stat_reward,
 			"completed": quest.completed,
 			"logged_value": quest.logged_value,
 			"unit": quest.unit,
@@ -41,6 +42,16 @@ func record_day(date: String, quests: Array[Quest], was_reduced_intensity: bool 
 	log.stat_gains = stat_gains
 	log.quest_summaries = summaries
 
+	days[date] = log
+
+
+## Records `date` as a day the app was never opened at all (distinct from a day that
+## was opened but had 0/N quests completed). Used to backfill gaps found when
+## check_new_day() detects more than one calendar day passed since the last open.
+func record_missed_day(date: String) -> void:
+	var log := DailyLog.new()
+	log.date = date
+	log.is_missed = true
 	days[date] = log
 
 

@@ -1,12 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://dxk3n9q8m1w7p"]
+[gd_scene load_steps=4 format=3 uid="uid://dxk3n9q8m1w7p"]
 
 [ext_resource type="Script" path="res://scenes/stats/stats.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/stats/radar_chart.gd" id="2"]
+[ext_resource type="Theme" path="res://themes/system_theme.tres" id="3"]
 
 [node name="Stats" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource("3")
 script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.0392157, 0.054902, 0.0901961, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
@@ -20,8 +28,14 @@ theme_override_constants/margin_bottom = 24
 layout_mode = 2
 theme_override_constants/separation = 12
 
+[node name="HeaderLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "STATS"
+
 [node name="LevelRankLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
+theme_type_variation = &"AccentLabel"
 text = "Level 1 — Rank E"
 
 [node name="RankBar" type="ProgressBar" parent="Margin/Root"]
@@ -30,28 +44,69 @@ show_percentage = false
 
 [node name="RankProgressLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
 text = "XP 0 / 500 to next rank"
 
 [node name="HSeparator" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
 
 [node name="RadarChart" type="Control" parent="Margin/Root"]
-custom_minimum_size = Vector2(320, 320)
+custom_minimum_size = Vector2(380, 380)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_horizontal = 4
 script = ExtResource("2")
+
+[node name="StatBreakdownPanel" type="PanelContainer" parent="Margin/Root"]
+visible = false
+layout_mode = 2
+
+[node name="StatBreakdownMargin" type="MarginContainer" parent="Margin/Root/StatBreakdownPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="StatBreakdownBox" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatBreakdownHeader" type="Label" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
+layout_mode = 2
+theme_type_variation = &"AccentLabel"
+text = "STR this week"
+
+[node name="StatBreakdownList" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="PRSeparator" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
 
 [node name="PRHeader" type="Label" parent="Margin/Root"]
 layout_mode = 2
-text = "Personal Records"
+theme_type_variation = &"HeaderLabel"
+text = "PERSONAL RECORDS"
 
-[node name="PRList" type="VBoxContainer" parent="Margin/Root"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/Root"]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="BackButton" type="Button" parent="Margin/Root"]
+[node name="PRList" type="VBoxContainer" parent="Margin/Root/ScrollContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -164.0
+offset_top = -76.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"FloatingButton"
 text = "Back"

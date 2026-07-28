@@ -1,6 +1,14 @@
 extends Control
 
-## Pentagon radar chart for the 5 Hunter stats (spec 4.3).
+## Pentagon radar chart for the 5 Hunter stats (spec 4.3). Optionally tappable —
+## Stats screen listens to stat_tapped to show a per-stat quest breakdown.
+##
+## Approved, permanent component (system-design skill v2): scoped specifically to the
+## 5-stat display (STR/VIT/AGI/INT/SENSE) on Home and Stats. Rank progression uses its
+## own dial + hexagon ladder visualization instead — the two are different data domains,
+## not competing options for the same one.
+
+signal stat_tapped(stat_index: int)
 
 const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 
@@ -9,18 +17,52 @@ const RING_COUNT := 4
 const LABEL_MARGIN := 36.0
 const LABEL_FONT_SIZE := 16
 
-const GRID_COLOR := Color(0.239, 0.545, 1.0, 0.2)
-# Blue, not violet — spec v2 5 reserves violet specifically for the Rank-up popup moment.
-const FILL_COLOR := Color(0.239, 0.545, 1.0, 0.25)
-const LINE_COLOR := Color(0.239, 0.545, 1.0, 1.0)
-const LABEL_COLOR := Color(0.906, 0.925, 0.98, 1.0)
+# #00B8FF (v2 primary accent, was #00D9FF)
+const GRID_COLOR := Color(0.0, 0.721569, 1.0, 0.2)
+# Accent cyan, not violet — design system reserves violet specifically for the Rank-up popup moment.
+const FILL_COLOR := Color(0.0, 0.721569, 1.0, 0.25)
+const LINE_COLOR := Color(0.0, 0.721569, 1.0, 1.0)
+const LABEL_COLOR := Color(0.909804, 0.929412, 0.968627, 1.0)
 
 var _values: Array = [10, 10, 10, 10, 10]
+var _tappable: bool = false
 
 
 func set_values(values: Array) -> void:
 	_values = values
 	queue_redraw()
+
+
+## Call once (e.g. from Stats screen _ready) to turn on tap detection. Home's radar
+## chart leaves this off since it has no breakdown panel to show.
+func set_tappable(tappable: bool) -> void:
+	_tappable = tappable
+	mouse_filter = Control.MOUSE_FILTER_STOP if tappable else Control.MOUSE_FILTER_IGNORE
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not _tappable:
+		return
+	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		return
+
+	var axis_count := STAT_LABELS.size()
+	var center := size / 2.0
+	var radius: float = min(center.x, center.y) - LABEL_MARGIN
+	if radius <= 0.0:
+		return
+
+	var to_click: Vector2 = event.position - center
+	if to_click.length() > radius + LABEL_MARGIN:
+		return  # tap landed outside the chart entirely
+
+	# Whole pie-slice per axis is the tap target, not just the small vertex dot —
+	# far more forgiving for a touch screen than a pixel-precise hit test.
+	var angle_step := TAU / axis_count
+	var angle := to_click.angle() + PI / 2.0  # re-base to match the -PI/2 axis start used in _draw
+	angle = wrapf(angle, 0.0, TAU)
+	var stat_index := int(round(angle / angle_step)) % axis_count
+	stat_tapped.emit(stat_index)
 
 
 func _draw() -> void:

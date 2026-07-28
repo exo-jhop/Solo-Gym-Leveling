@@ -133,14 +133,24 @@ func next_rank_threshold() -> int:
 	return RANK_XP_THRESHOLDS[RANKS[idx + 1]]
 
 
-## Called by SaveManager when the calendar day changes.
-func evaluate_streak() -> void:
+## Called by SaveManager when the calendar day changes. days_gap is the number of
+## calendar days between the last open and today (1 for a normal consecutive-day
+## open). A gap greater than 1 means whole days were skipped with the app closed,
+## so freeze consumption scales with how many days were actually missed rather
+## than always costing exactly one freeze (see spec discussion: this also means a
+## same-day-cadence miss with no gap costs nothing, only multi-day absences do).
+func evaluate_streak(days_gap: int = 1) -> void:
 	if _completed_something_today:
 		hunter_stats.current_streak += 1
 		hunter_stats.longest_streak = max(hunter_stats.longest_streak, hunter_stats.current_streak)
-	elif hunter_stats.streak_freezes_available > 0:
-		hunter_stats.streak_freezes_available -= 1
+	elif days_gap <= 1:
+		pass
 	else:
-		hunter_stats.current_streak = 0
+		var freezes_needed := days_gap - 1
+		if hunter_stats.streak_freezes_available >= freezes_needed:
+			hunter_stats.streak_freezes_available -= freezes_needed
+		else:
+			hunter_stats.current_streak = 0
+			hunter_stats.streak_freezes_available = 0
 	_completed_something_today = false
 	stats_changed.emit()
