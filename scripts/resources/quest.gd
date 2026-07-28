@@ -12,6 +12,7 @@ extends Resource
 @export var unit: String = ""  # "reps", "g", "kg"
 @export var completed: bool = false
 @export var logged_value: float = 0.0
+@export var logged_weight: float = 0.0  # optional; 0.0 means no weight was entered (bodyweight exercise)
 
 # Lift-quest-only fields (spec v2 4.3, low-energy toggle). Kept as data rather than
 # parsed back out of `title`, so toggling the reduction never depends on display text.
@@ -31,6 +32,7 @@ func to_dict() -> Dictionary:
 		"unit": unit,
 		"completed": completed,
 		"logged_value": logged_value,
+		"logged_weight": logged_weight,
 		"exercise_name": exercise_name,
 		"rep_range": rep_range,
 		"original_target_value": original_target_value,
@@ -48,6 +50,7 @@ static func from_dict(data: Dictionary) -> Quest:
 	quest.unit = data.get("unit", "")
 	quest.completed = data.get("completed", false)
 	quest.logged_value = data.get("logged_value", 0.0)
+	quest.logged_weight = data.get("logged_weight", 0.0)
 	quest.exercise_name = data.get("exercise_name", "")
 	quest.rep_range = data.get("rep_range", "")
 	quest.original_target_value = data.get("original_target_value", -1.0)

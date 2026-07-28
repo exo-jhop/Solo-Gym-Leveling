@@ -49,7 +49,7 @@ func _refresh_pr_list() -> void:
 	exercise_names.sort()
 	for exercise_name in exercise_names:
 		var row := Label.new()
-		row.text = "%s: %s" % [exercise_name, PRTracker.format_value(PRTracker.personal_records[exercise_name])]
+		row.text = "%s: %s" % [exercise_name, PRTracker.format_record(PRTracker.personal_records[exercise_name])]
 		pr_list.add_child(row)
 
 

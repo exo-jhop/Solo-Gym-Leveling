@@ -128,11 +128,12 @@ func get_quest(quest_id: String) -> Quest:
 
 
 ## Marks a quest complete by id and emits quest_completed. Returns false if not found or already done.
-func complete_quest(quest_id: String, logged_value: float = 0.0) -> bool:
+func complete_quest(quest_id: String, logged_value: float = 0.0, logged_weight: float = 0.0) -> bool:
 	for quest in current_quests:
 		if quest.id == quest_id and not quest.completed:
 			quest.completed = true
 			quest.logged_value = logged_value
+			quest.logged_weight = logged_weight
 			quest_completed.emit(quest)
 			return true
 	return false
