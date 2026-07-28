@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxk3n9q8m1w7p"]
+
+[ext_resource type="Script" path="res://scenes/stats/stats.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/stats/radar_chart.gd" id="2"]
+
+[node name="Stats" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LevelRankLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Level 1 — Rank E"
+
+[node name="RankBar" type="ProgressBar" parent="Margin/Root"]
+layout_mode = 2
+show_percentage = false
+
+[node name="RankProgressLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "XP 0 / 500 to next rank"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="RadarChart" type="Control" parent="Margin/Root"]
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("2")
+
+[node name="BackButton" type="Button" parent="Margin/Root"]
+layout_mode = 2
+text = "Back"
