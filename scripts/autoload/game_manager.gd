@@ -8,14 +8,16 @@ signal stats_changed
 
 const RANKS: Array[String] = ["E", "D", "C", "B", "A", "S"]
 
-# Rank badge colors, low to high: muted gray up through blue/violet, breaking into
-# gold at S to mark it as the rare, stand-apart tier (spec 5's visual direction).
+# Rank badge colors, low to high: muted gray up through electric blue/cyan, breaking
+# into gold at S to mark it as the rare, stand-apart tier (spec v2 5's visual direction).
+# Violet is deliberately excluded here — spec v2 5 reserves it specifically for the
+# Rank-up popup moment (see system_popup.gd), so it can't also be a standing badge color.
 const RANK_COLORS := {
 	"E": Color(0.486, 0.533, 0.659),
 	"D": Color(0.4, 0.65, 0.95),
 	"C": Color(0.239, 0.545, 1.0),
-	"B": Color(0.65, 0.5, 0.98),
-	"A": Color(0.545, 0.361, 0.965),
+	"B": Color(0.16, 0.63, 0.88),
+	"A": Color(0.13, 0.78, 0.82),
 	"S": Color(1.0, 0.85, 0.35),
 }
 

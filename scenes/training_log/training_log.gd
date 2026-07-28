@@ -1,5 +1,7 @@
 extends Control
 
+const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
+
 ## Training Log / History (spec 4.4): month calendar view.
 ## Past days come from HistoryManager; today is built live from QuestManager.current_quests
 ## since SaveManager doesn't roll today into HistoryManager until the calendar day changes.
@@ -43,6 +45,7 @@ func _ready() -> void:
 	prev_button.pressed.connect(_on_prev_month)
 	next_button.pressed.connect(_on_next_month)
 	back_button.pressed.connect(_go_back)
+	detail_summary_label.add_theme_font_override("font", STAT_FONT)
 
 	_refresh_calendar()
 	_select_date(_today_str)

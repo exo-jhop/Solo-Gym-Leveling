@@ -10,7 +10,8 @@ const LABEL_MARGIN := 36.0
 const LABEL_FONT_SIZE := 16
 
 const GRID_COLOR := Color(0.239, 0.545, 1.0, 0.2)
-const FILL_COLOR := Color(0.545, 0.361, 0.965, 0.3)
+# Blue, not violet — spec v2 5 reserves violet specifically for the Rank-up popup moment.
+const FILL_COLOR := Color(0.239, 0.545, 1.0, 0.25)
 const LINE_COLOR := Color(0.239, 0.545, 1.0, 1.0)
 const LABEL_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 

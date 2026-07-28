@@ -8,6 +8,12 @@ const DISPLAY_SECONDS := 2.0
 const FADE_SECONDS := 0.25
 const LEVEL_UP_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 
+# Accent applied to the panel border/glow and kind label — distinct per popup kind so
+# Rank-up reads as visually bigger/rarer than Level-up (spec v2 5: violet is reserved
+# specifically for Rank-up moments, blue is the general active/positive accent).
+const LEVEL_UP_ACCENT := Color(0.239, 0.545, 1.0, 1.0)
+const RANK_UP_ACCENT := Color(0.545, 0.361, 0.965, 1.0)
+
 @onready var dim: ColorRect = $Dim
 @onready var panel: PanelContainer = $Dim/CenterContainer/Panel
 @onready var kind_label: Label = $Dim/CenterContainer/Panel/Margin/VBox/KindLabel
@@ -17,6 +23,7 @@ const LEVEL_UP_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 var _queue: Array = []
 var _showing: bool = false
 var _tween: Tween
+var _panel_style: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -27,14 +34,23 @@ func _ready() -> void:
 	GameManager.leveled_up.connect(_on_leveled_up)
 	GameManager.ranked_up.connect(_on_ranked_up)
 
+	_panel_style = panel.get_theme_stylebox("panel").duplicate()
+	panel.add_theme_stylebox_override("panel", _panel_style)
+
 
 func _on_leveled_up(new_level: int) -> void:
-	_queue.append({"kind": "LEVEL UP", "value": "Level %d" % new_level, "hint": "Tap to continue", "color": LEVEL_UP_COLOR})
+	_queue.append({
+		"kind": "LEVEL UP", "value": "Level %d" % new_level, "hint": "Tap to continue",
+		"accent": LEVEL_UP_ACCENT, "value_color": LEVEL_UP_COLOR,
+	})
 	_process_queue()
 
 
 func _on_ranked_up(new_rank: String) -> void:
-	_queue.append({"kind": "RANK UP", "value": "Rank %s" % new_rank, "hint": "Tap to continue", "color": GameManager.rank_color(new_rank)})
+	_queue.append({
+		"kind": "RANK UP", "value": "Rank %s" % new_rank, "hint": "Tap to continue",
+		"accent": RANK_UP_ACCENT, "value_color": GameManager.rank_color(new_rank),
+	})
 	_process_queue()
 
 
@@ -50,7 +66,10 @@ func _show_popup(entry: Dictionary) -> void:
 	kind_label.text = entry.kind
 	value_label.text = entry.value
 	hint_label.text = entry.hint
-	value_label.add_theme_color_override("font_color", entry.color)
+	kind_label.add_theme_color_override("font_color", entry.accent)
+	value_label.add_theme_color_override("font_color", entry.value_color)
+	_panel_style.border_color = entry.accent
+	_panel_style.shadow_color = Color(entry.accent, 0.5)
 
 	visible = true
 	dim.modulate.a = 0.0

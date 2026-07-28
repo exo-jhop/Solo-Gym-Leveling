@@ -2,6 +2,8 @@ extends Control
 
 ## Quest Detail (spec 4.2). Log actual performance and complete the quest. Functional only.
 
+const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
+
 @onready var title_label: Label = $Margin/Root/TitleLabel
 @onready var meta_label: Label = $Margin/Root/MetaLabel
 @onready var target_label: Label = $Margin/Root/TargetLabel
@@ -17,6 +19,7 @@ func _ready() -> void:
 	quest = QuestManager.get_quest(QuestManager.selected_quest_id)
 	complete_button.pressed.connect(_on_complete_pressed)
 	back_button.pressed.connect(_go_back)
+	target_label.add_theme_font_override("font", STAT_FONT)
 
 	if quest == null:
 		push_error("QuestDetail: no quest found for id '%s'" % QuestManager.selected_quest_id)

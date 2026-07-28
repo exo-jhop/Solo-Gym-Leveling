@@ -15,6 +15,7 @@ func _ready() -> void:
 	GameManager.stats_changed.connect(_refresh)
 	back_button.pressed.connect(_go_back)
 	level_rank_label.add_theme_font_override("font", STAT_FONT)
+	rank_progress_label.add_theme_font_override("font", STAT_FONT)
 	_refresh()
 
 

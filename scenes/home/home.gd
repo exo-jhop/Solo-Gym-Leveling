@@ -8,8 +8,8 @@ const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 @onready var xp_bar: ProgressBar = $Margin/Root/XPBar
 @onready var xp_label: Label = $Margin/Root/XPLabel
 @onready var streak_label: Label = $Margin/Root/StreakLabel
-@onready var stats_button: Button = $Margin/Root/StatsButton
-@onready var lobby_button: Button = $Margin/Root/LobbyButton
+@onready var stats_button: Button = $Margin/Root/ButtonRow/StatsButton
+@onready var lobby_button: Button = $Margin/Root/ButtonRow/LobbyButton
 @onready var low_energy_toggle: CheckBox = $Margin/Root/LowEnergyToggle
 @onready var quest_list: VBoxContainer = $Margin/Root/ScrollContainer/QuestList
 
@@ -23,6 +23,7 @@ func _ready() -> void:
 
 	level_rank_label.add_theme_font_override("font", STAT_FONT)
 	xp_label.add_theme_font_override("font", STAT_FONT)
+	streak_label.add_theme_font_override("font", STAT_FONT)
 
 	_refresh_header()
 	_refresh_quests()

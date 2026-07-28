@@ -35,24 +35,16 @@ text = "XP: 0 / 100"
 layout_mode = 2
 text = "Streak: 0 day(s)  |  1 freeze(s) left"
 
-[node name="StatsButton" type="Button" parent="Margin/Root"]
-layout_mode = 2
-text = "View Stats"
-
-[node name="LobbyButton" type="Button" parent="Margin/Root"]
-layout_mode = 2
-text = "Back to Lobby"
-
 [node name="HSeparator" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
-
-[node name="LowEnergyToggle" type="CheckBox" parent="Margin/Root"]
-layout_mode = 2
-text = "Feeling low energy today? (reduce sets)"
 
 [node name="QuestsHeaderLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
 text = "Today's Quests"
+
+[node name="LowEnergyToggle" type="CheckBox" parent="Margin/Root"]
+layout_mode = 2
+text = "Feeling low energy today? (reduce sets)"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Margin/Root"]
 layout_mode = 2
@@ -62,3 +54,20 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatsButton" type="Button" parent="Margin/Root/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "View Stats"
+
+[node name="LobbyButton" type="Button" parent="Margin/Root/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back to Lobby"
