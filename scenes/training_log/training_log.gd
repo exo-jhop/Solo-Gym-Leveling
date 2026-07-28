@@ -77,7 +77,8 @@ func _refresh_calendar() -> void:
 	var days_in_month := _days_in_month(_view_year, _view_month)
 	for day in range(1, days_in_month + 1):
 		var date_str := "%04d-%02d-%02d" % [_view_year, _view_month, day]
-		var status := _status_for_date(date_str)
+		var has_data := _has_data_for_date(date_str)
+		var ratio := _ratio_for_date(date_str)
 
 		var cell := Button.new()
 		cell.text = str(day)
@@ -85,9 +86,9 @@ func _refresh_calendar() -> void:
 		cell.custom_minimum_size = Vector2(0, 40)
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.button_pressed = (date_str == _selected_date)
-		_style_cell(cell, status, date_str == _today_str)
+		_style_cell(cell, has_data, ratio, date_str == _today_str)
 
-		if status != CellStatus.NO_DATA:
+		if has_data:
 			cell.pressed.connect(_select_date.bind(date_str))
 		else:
 			cell.disabled = true
@@ -95,42 +96,31 @@ func _refresh_calendar() -> void:
 		calendar_grid.add_child(cell)
 
 
-enum CellStatus { NO_DATA, FULL, PARTIAL, MISSED }
-
-
-func _status_for_date(date_str: String) -> CellStatus:
+func _has_data_for_date(date_str: String) -> bool:
 	var log := _get_log_for_date(date_str)
-	if log == null:
-		return CellStatus.NO_DATA
-	if log.quests_total == 0:
-		return CellStatus.NO_DATA
-	if log.quests_completed >= log.quests_total:
-		return CellStatus.FULL
-	if log.quests_completed > 0:
-		return CellStatus.PARTIAL
-	return CellStatus.MISSED
+	return log != null and log.quests_total > 0
 
 
-# System palette (spec 5): deep navy base, status colors read against it.
-const STATUS_COLOR_FULL := Color(0.204, 0.827, 0.6)
-const STATUS_COLOR_PARTIAL := Color(0.984, 0.749, 0.141)
-const STATUS_COLOR_MISSED := Color(0.949, 0.333, 0.365)
+## Fraction of that day's quests completed, 0.0 if no data (caller should
+## check _has_data_for_date first to distinguish "nothing done" from "no data").
+func _ratio_for_date(date_str: String) -> float:
+	var log := _get_log_for_date(date_str)
+	if log == null or log.quests_total == 0:
+		return 0.0
+	return float(log.quests_completed) / float(log.quests_total)
+
+
+# System palette (spec 5): deep navy base. Heatmap intensity scales from the
+# base color (nothing done) up to the full-completion color (spec v2 4.4).
+const HEATMAP_LOW_COLOR := Color(0.145, 0.176, 0.263)
+const HEATMAP_HIGH_COLOR := Color(0.204, 0.827, 0.6)
 const STATUS_COLOR_NONE := Color(0.071, 0.094, 0.165)
 const TODAY_BORDER_COLOR := Color(0.239, 0.545, 1.0)
 
 
-func _style_cell(cell: Button, status: CellStatus, is_today: bool) -> void:
-	var color: Color
-	match status:
-		CellStatus.FULL:
-			color = STATUS_COLOR_FULL
-		CellStatus.PARTIAL:
-			color = STATUS_COLOR_PARTIAL
-		CellStatus.MISSED:
-			color = STATUS_COLOR_MISSED
-		_:
-			color = STATUS_COLOR_NONE
-	cell.add_theme_color_override("font_color", Color(0.906, 0.925, 0.98) if status != CellStatus.NO_DATA else Color(0.486, 0.533, 0.659))
+func _style_cell(cell: Button, has_data: bool, ratio: float, is_today: bool) -> void:
+	var color: Color = HEATMAP_LOW_COLOR.lerp(HEATMAP_HIGH_COLOR, ratio) if has_data else STATUS_COLOR_NONE
+	cell.add_theme_color_override("font_color", Color(0.906, 0.925, 0.98) if has_data else Color(0.486, 0.533, 0.659))
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
 	style.corner_radius_top_left = 0
