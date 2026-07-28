@@ -89,11 +89,14 @@ func generate_daily_quests() -> void:
 	else:
 		for exercise in day.exercises:
 			var stat := "STR" if day.day_name.begins_with("Upper") else "VIT"
-			current_quests.append(_make_quest(
+			var quest := _make_quest(
 				"lift_%s" % exercise.name.to_snake_case(),
 				"%s: %dx%s" % [exercise.name, exercise.sets, exercise.rep_range],
 				"lift", stat, 15, exercise.sets, "sets"
-			))
+			)
+			quest.exercise_name = exercise.name
+			quest.rep_range = exercise.rep_range
+			current_quests.append(quest)
 
 	current_quests.append(_make_quest("protein", "Hit %dg protein" % int(protein_target_g), "nutrition", "INT", 10, protein_target_g, "g"))
 	current_quests.append(_make_quest("creatine", "Take %dg creatine" % int(creatine_target_g), "supplement", "SENSE", 5, creatine_target_g, "g"))
@@ -153,31 +156,24 @@ func any_lift_quest_completed() -> bool:
 ## each not-yet-completed lift quest's target, or restores it when turned back off.
 ## No-op if there's nothing to adjust or a lift quest is already completed today
 ## (retroactively changing a finished quest's target doesn't make sense).
+## Uses each quest's own exercise_name/rep_range/original_target_value fields
+## rather than parsing `title`, so display-text changes can't break the reversal.
 func set_low_energy_mode(enabled: bool) -> void:
 	if enabled == low_energy_mode:
 		return
 	if not has_lift_quests() or any_lift_quest_completed():
 		return
 
-	var delta := -1 if enabled else 1
 	for quest in current_quests:
-		if quest.category == "lift":
-			_adjust_lift_quest_sets(quest, delta)
+		if quest.category != "lift":
+			continue
+		if enabled:
+			quest.original_target_value = quest.target_value
+			quest.target_value = max(1, int(quest.target_value) - 1)
+		elif quest.original_target_value >= 0:
+			quest.target_value = quest.original_target_value
+			quest.original_target_value = -1.0
+		quest.title = "%s: %dx%s" % [quest.exercise_name, int(quest.target_value), quest.rep_range]
 
 	low_energy_mode = enabled
 	quests_generated.emit()
-
-
-func _adjust_lift_quest_sets(quest: Quest, delta: int) -> void:
-	var parts := quest.title.split(": ", true, 1)
-	if parts.size() != 2:
-		return
-	var exercise_name: String = parts[0]
-	var x_index := parts[1].find("x")
-	if x_index == -1:
-		return
-	var rep_range: String = parts[1].substr(x_index + 1)
-
-	var new_sets: int = max(1, int(quest.target_value) + delta)
-	quest.target_value = new_sets
-	quest.title = "%s: %dx%s" % [exercise_name, new_sets, rep_range]
