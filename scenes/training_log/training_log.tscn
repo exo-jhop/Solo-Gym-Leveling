@@ -18,17 +18,64 @@ theme_override_constants/margin_bottom = 24
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
 theme_override_constants/separation = 12
-alignment = 1
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
 text = "Training Log"
 horizontal_alignment = 1
 
-[node name="PlaceholderLabel" type="Label" parent="Margin/Root"]
+[node name="HeaderRow" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-text = "Coming soon."
+theme_override_constants/separation = 12
+
+[node name="PrevButton" type="Button" parent="Margin/Root/HeaderRow"]
+layout_mode = 2
+text = "<"
+
+[node name="MonthLabel" type="Label" parent="Margin/Root/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Month Year"
 horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="Margin/Root/HeaderRow"]
+layout_mode = 2
+text = ">"
+
+[node name="WeekdayRow" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CalendarGrid" type="GridContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 7
+
+[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="DetailPanel" type="VBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="DetailTitleLabel" type="Label" parent="Margin/Root/DetailPanel"]
+layout_mode = 2
+text = "Select a day"
+
+[node name="DetailSummaryLabel" type="Label" parent="Margin/Root/DetailPanel"]
+layout_mode = 2
+text = ""
+
+[node name="DetailScroll" type="ScrollContainer" parent="Margin/Root/DetailPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailQuestList" type="VBoxContainer" parent="Margin/Root/DetailPanel/DetailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
 
 [node name="BackButton" type="Button" parent="Margin/Root"]
 layout_mode = 2
