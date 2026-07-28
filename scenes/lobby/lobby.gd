@@ -6,6 +6,7 @@ extends Control
 @onready var quests_button: Button = $Margin/Root/QuestsButton
 @onready var stats_button: Button = $Margin/Root/StatsButton
 @onready var training_log_button: Button = $Margin/Root/TrainingLogButton
+@onready var weekly_summary_button: Button = $Margin/Root/WeeklySummaryButton
 @onready var settings_button: Button = $Margin/Root/SettingsButton
 
 
@@ -13,6 +14,7 @@ func _ready() -> void:
 	quests_button.pressed.connect(_on_quests_pressed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	training_log_button.pressed.connect(_on_training_log_pressed)
+	weekly_summary_button.pressed.connect(_on_weekly_summary_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	GameManager.stats_changed.connect(_refresh_rank_title)
 	_refresh_rank_title()
@@ -34,6 +36,10 @@ func _on_stats_pressed() -> void:
 
 func _on_training_log_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/training_log/training_log.tscn")
+
+
+func _on_weekly_summary_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/weekly_summary/weekly_summary.tscn")
 
 
 func _on_settings_pressed() -> void:

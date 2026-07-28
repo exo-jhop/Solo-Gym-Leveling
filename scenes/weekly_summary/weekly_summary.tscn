@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8x2p6q9m3w1t"]
+
+[ext_resource type="Script" path="res://scenes/weekly_summary/weekly_summary.gd" id="1"]
+
+[node name="WeeklySummary" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Weekly Summary"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="XpLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "XP earned this week: 0"
+
+[node name="QuestsLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Quests completed: 0 / 0"
+
+[node name="StreakLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Current streak: 0 days"
+
+[node name="TopStatLabel" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Top stat this week: —"
+
+[node name="BackButton" type="Button" parent="Margin/Root"]
+layout_mode = 2
+text = "Back to Lobby"

@@ -47,6 +47,10 @@ text = "Stats"
 layout_mode = 2
 text = "Training Log"
 
+[node name="WeeklySummaryButton" type="Button" parent="Margin/Root"]
+layout_mode = 2
+text = "Weekly Summary"
+
 [node name="SettingsButton" type="Button" parent="Margin/Root"]
 layout_mode = 2
 text = "Settings"
