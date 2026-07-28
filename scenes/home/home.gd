@@ -13,8 +13,6 @@ extends Control
 
 func _ready() -> void:
 	GameManager.stats_changed.connect(_refresh_header)
-	GameManager.leveled_up.connect(_on_leveled_up)
-	GameManager.ranked_up.connect(_on_ranked_up)
 	QuestManager.quests_generated.connect(_refresh_quests)
 	stats_button.pressed.connect(_on_stats_pressed)
 	lobby_button.pressed.connect(_on_lobby_pressed)
@@ -76,11 +74,3 @@ func _on_lobby_pressed() -> void:
 func _on_log_pressed(quest: Quest) -> void:
 	QuestManager.selected_quest_id = quest.id
 	get_tree().change_scene_to_file("res://scenes/quest_detail/quest_detail.tscn")
-
-
-func _on_leveled_up(new_level: int) -> void:
-	print("*** LEVEL UP -> %d ***" % new_level)  # placeholder until the System popup exists
-
-
-func _on_ranked_up(new_rank: String) -> void:
-	print("*** RANK UP -> %s ***" % new_rank)  # placeholder until the System popup exists
