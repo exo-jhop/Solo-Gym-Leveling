@@ -13,6 +13,7 @@ const LEVEL_UP_COLOR := Color(0.906, 0.925, 0.98, 1.0)
 # specifically for Rank-up moments, blue is the general active/positive accent).
 const LEVEL_UP_ACCENT := Color(0.239, 0.545, 1.0, 1.0)
 const RANK_UP_ACCENT := Color(0.545, 0.361, 0.965, 1.0)
+const NEW_PR_ACCENT := Color(0.3, 0.85, 0.4, 1.0)
 
 @onready var dim: ColorRect = $Dim
 @onready var panel: PanelContainer = $Dim/CenterContainer/Panel
@@ -33,6 +34,7 @@ func _ready() -> void:
 	dim.gui_input.connect(_on_dim_input)
 	GameManager.leveled_up.connect(_on_leveled_up)
 	GameManager.ranked_up.connect(_on_ranked_up)
+	PRTracker.new_pr.connect(_on_new_pr)
 
 	_panel_style = panel.get_theme_stylebox("panel").duplicate()
 	panel.add_theme_stylebox_override("panel", _panel_style)
@@ -50,6 +52,14 @@ func _on_ranked_up(new_rank: String) -> void:
 	_queue.append({
 		"kind": "RANK UP", "value": "Rank %s" % new_rank, "hint": "Tap to continue",
 		"accent": RANK_UP_ACCENT, "value_color": GameManager.rank_color(new_rank),
+	})
+	_process_queue()
+
+
+func _on_new_pr(exercise_name: String, value: float) -> void:
+	_queue.append({
+		"kind": "NEW PR!", "value": "%s: %s" % [exercise_name, PRTracker.format_value(value)], "hint": "Tap to continue",
+		"accent": NEW_PR_ACCENT, "value_color": LEVEL_UP_COLOR,
 	})
 	_process_queue()
 

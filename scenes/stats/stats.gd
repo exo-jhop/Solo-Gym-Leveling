@@ -8,6 +8,7 @@ const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 @onready var rank_bar: ProgressBar = $Margin/Root/RankBar
 @onready var rank_progress_label: Label = $Margin/Root/RankProgressLabel
 @onready var radar_chart: Control = $Margin/Root/RadarChart
+@onready var pr_list: VBoxContainer = $Margin/Root/PRList
 @onready var back_button: Button = $Margin/Root/BackButton
 
 
@@ -38,6 +39,18 @@ func _refresh() -> void:
 		rank_progress_label.text = "XP %d / %d to next rank" % [stats.xp, next_threshold]
 
 	radar_chart.set_values([stats.str_stat, stats.vit_stat, stats.agi_stat, stats.int_stat, stats.sense_stat])
+	_refresh_pr_list()
+
+
+func _refresh_pr_list() -> void:
+	for child in pr_list.get_children():
+		child.queue_free()
+	var exercise_names := PRTracker.personal_records.keys()
+	exercise_names.sort()
+	for exercise_name in exercise_names:
+		var row := Label.new()
+		row.text = "%s: %s" % [exercise_name, PRTracker.format_value(PRTracker.personal_records[exercise_name])]
+		pr_list.add_child(row)
 
 
 func _go_back() -> void:

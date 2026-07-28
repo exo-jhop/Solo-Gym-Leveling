@@ -19,6 +19,7 @@ config/features=PackedStringArray("4.7", "Mobile")
 GameManager="*res://scripts/autoload/game_manager.gd"
 QuestManager="*res://scripts/autoload/quest_manager.gd"
 HistoryManager="*res://scripts/autoload/history_manager.gd"
+PRTracker="*res://scripts/autoload/pr_tracker.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 NotificationManager="*res://scripts/autoload/notification_manager.gd"
 SystemPopup="*res://scenes/system_popup/system_popup.tscn"

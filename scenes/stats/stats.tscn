@@ -42,6 +42,16 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("2")
 
+[node name="PRSeparator" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="PRHeader" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Personal Records"
+
+[node name="PRList" type="VBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+
 [node name="BackButton" type="Button" parent="Margin/Root"]
 layout_mode = 2
 text = "Back"

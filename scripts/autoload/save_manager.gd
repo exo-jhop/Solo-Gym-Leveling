@@ -30,6 +30,7 @@ func save_game() -> void:
 		"hunter_stats": GameManager.hunter_stats.to_dict(),
 		"current_quests": quest_dicts,
 		"history": HistoryManager.to_dict(),
+		"personal_records": PRTracker.to_dict(),
 		"training_cycle": training_cycle_dicts,
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
@@ -76,6 +77,7 @@ func load_game() -> bool:
 		QuestManager.current_quests.append(Quest.from_dict(quest_data))
 
 	HistoryManager.days = HistoryManager.from_dict(data.get("history", {}))
+	PRTracker.personal_records = PRTracker.from_dict(data.get("personal_records", {}))
 
 	if data.has("training_cycle"):
 		var training_cycle: Array[TrainingDay] = []
