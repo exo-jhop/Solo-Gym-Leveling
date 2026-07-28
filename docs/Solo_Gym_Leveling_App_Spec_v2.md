@@ -1,4 +1,4 @@
-# Hunter System: Fitness RPG App — Spec v2
+# Solo: Gym Leveling — Fitness RPG App Spec v2
 **Engine:** Godot 4.7 | **Platform:** Android (mobile-first) | **Status:** Refinement pass on working MVP
 
 ---

@@ -23,7 +23,7 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
-text = "Hunter System"
+text = "Solo: Gym Leveling"
 horizontal_alignment = 1
 
 [node name="ReminderBanner" type="HBoxContainer" parent="Margin/Root"]
