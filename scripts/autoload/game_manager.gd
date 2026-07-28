@@ -32,6 +32,17 @@ const RANK_XP_THRESHOLDS := {
 # Small per-completion stat bump. Placeholder, tune later (see spec 2.1).
 const STAT_INCREMENT := 1
 
+# Cosmetic-only milestone titles per rank (spec v2 4.2). Only D/B/S were fixed
+# by the spec; C and A are proposed fills to keep the naming ramp consistent.
+const MILESTONE_TITLES := {
+	"E": "Novice",
+	"D": "Awakened",
+	"C": "Breaker",
+	"B": "Vanguard",
+	"A": "Sovereign",
+	"S": "Monarch",
+}
+
 var hunter_stats: HunterStats = HunterStats.new()
 
 # Tracks whether any quest has been completed today, for streak evaluation on day change.
@@ -91,6 +102,7 @@ func _check_rank_up() -> void:
 			new_rank = rank
 	if new_rank != hunter_stats.rank:
 		hunter_stats.rank = new_rank
+		hunter_stats.current_title = MILESTONE_TITLES.get(new_rank, "")
 		ranked_up.emit(new_rank)
 
 
@@ -102,6 +114,13 @@ func current_rank_threshold() -> int:
 ## Badge color for a rank letter, for UI display (spec 5).
 func rank_color(rank: String) -> Color:
 	return RANK_COLORS.get(rank, Color.WHITE)
+
+
+## Fills in current_title for saves created/loaded before Milestone Titles existed,
+## or where it's otherwise out of sync with the current rank. Call after load.
+func ensure_title_synced() -> void:
+	if hunter_stats.current_title == "":
+		hunter_stats.current_title = MILESTONE_TITLES.get(hunter_stats.rank, "")
 
 
 ## XP threshold for the next rank, or -1 if already at the top rank (S).

@@ -14,6 +14,7 @@ extends Resource
 @export var current_streak: int = 0
 @export var longest_streak: int = 0
 @export var streak_freezes_available: int = 1
+@export var current_title: String = ""
 
 
 func to_dict() -> Dictionary:
@@ -29,6 +30,7 @@ func to_dict() -> Dictionary:
 		"current_streak": current_streak,
 		"longest_streak": longest_streak,
 		"streak_freezes_available": streak_freezes_available,
+		"current_title": current_title,
 	}
 
 
@@ -45,4 +47,5 @@ static func from_dict(data: Dictionary) -> HunterStats:
 	stats.current_streak = data.get("current_streak", 0)
 	stats.longest_streak = data.get("longest_streak", 0)
 	stats.streak_freezes_available = data.get("streak_freezes_available", 1)
+	stats.current_title = data.get("current_title", "")
 	return stats

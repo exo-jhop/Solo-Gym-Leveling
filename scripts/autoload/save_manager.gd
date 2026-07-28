@@ -10,6 +10,7 @@ var last_opened_date: String = ""
 
 func _ready() -> void:
 	load_game()
+	GameManager.ensure_title_synced()
 	check_new_day()
 
 
