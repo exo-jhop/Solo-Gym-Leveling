@@ -8,9 +8,10 @@ var days: Dictionary = {}  # date string ("YYYY-MM-DD") -> DailyLog
 
 
 ## Builds a DailyLog snapshot for `date` from the day's now-finished quest list and stores it.
-func record_day(date: String, quests: Array[Quest]) -> void:
+func record_day(date: String, quests: Array[Quest], was_reduced_intensity: bool = false) -> void:
 	var log := DailyLog.new()
 	log.date = date
+	log.was_reduced_intensity = was_reduced_intensity
 
 	var xp_earned := 0
 	var stat_gains: Dictionary = {}

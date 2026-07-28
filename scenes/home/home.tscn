@@ -46,6 +46,10 @@ text = "Back to Lobby"
 [node name="HSeparator" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
 
+[node name="LowEnergyToggle" type="CheckBox" parent="Margin/Root"]
+layout_mode = 2
+text = "Feeling low energy today? (reduce sets)"
+
 [node name="QuestsHeaderLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
 text = "Today's Quests"

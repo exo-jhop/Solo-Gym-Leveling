@@ -10,6 +10,7 @@ extends Resource
 @export var xp_earned: int = 0
 @export var stat_gains: Dictionary = {}     # e.g. {"STR": 2, "VIT": 1}
 @export var quest_summaries: Array = []     # lightweight dicts: {id, title, category, completed, logged_value, unit}
+@export var was_reduced_intensity: bool = false  # true if the "low energy" toggle was used this day (spec v2 4.3)
 
 
 func to_dict() -> Dictionary:
@@ -21,6 +22,7 @@ func to_dict() -> Dictionary:
 		"xp_earned": xp_earned,
 		"stat_gains": stat_gains,
 		"quest_summaries": quest_summaries,
+		"was_reduced_intensity": was_reduced_intensity,
 	}
 
 
@@ -33,4 +35,5 @@ static func from_dict(data: Dictionary) -> DailyLog:
 	log.xp_earned = data.get("xp_earned", 0)
 	log.stat_gains = data.get("stat_gains", {})
 	log.quest_summaries = data.get("quest_summaries", [])
+	log.was_reduced_intensity = data.get("was_reduced_intensity", false)
 	return log

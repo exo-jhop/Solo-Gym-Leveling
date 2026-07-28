@@ -10,6 +10,7 @@ const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 @onready var streak_label: Label = $Margin/Root/StreakLabel
 @onready var stats_button: Button = $Margin/Root/StatsButton
 @onready var lobby_button: Button = $Margin/Root/LobbyButton
+@onready var low_energy_toggle: CheckBox = $Margin/Root/LowEnergyToggle
 @onready var quest_list: VBoxContainer = $Margin/Root/ScrollContainer/QuestList
 
 
@@ -18,6 +19,7 @@ func _ready() -> void:
 	QuestManager.quests_generated.connect(_refresh_quests)
 	stats_button.pressed.connect(_on_stats_pressed)
 	lobby_button.pressed.connect(_on_lobby_pressed)
+	low_energy_toggle.toggled.connect(_on_low_energy_toggled)
 
 	level_rank_label.add_theme_font_override("font", STAT_FONT)
 	xp_label.add_theme_font_override("font", STAT_FONT)
@@ -39,6 +41,10 @@ func _refresh_header() -> void:
 
 
 func _refresh_quests() -> void:
+	low_energy_toggle.visible = QuestManager.has_lift_quests()
+	low_energy_toggle.set_pressed_no_signal(QuestManager.low_energy_mode)
+	low_energy_toggle.disabled = QuestManager.any_lift_quest_completed()
+
 	for child in quest_list.get_children():
 		child.queue_free()
 
@@ -59,6 +65,11 @@ func _refresh_quests() -> void:
 		row.add_child(log_button)
 
 		quest_list.add_child(row)
+
+
+func _on_low_energy_toggled(pressed: bool) -> void:
+	QuestManager.set_low_energy_mode(pressed)
+	_refresh_quests()
 
 
 func _on_quest_toggled(pressed: bool, quest: Quest) -> void:

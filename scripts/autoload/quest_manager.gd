@@ -19,6 +19,10 @@ var selected_quest_id: String = ""
 var protein_target_g: float = 90.0
 var creatine_target_g: float = 5.0
 
+# "Feeling low energy today?" toggle (spec v2 4.3). Resets to false on each new day;
+# persisted across app restarts within the same day so the choice sticks.
+var low_energy_mode: bool = false
+
 const BODYWEIGHT_LOG_DAYS := [0, 3]  # cycle day indices that include a bodyweight quest
 
 
@@ -77,6 +81,7 @@ func _exercise(name: String, sets: int, rep_range: String) -> Exercise:
 ## Builds current_quests for the current cycle_day_index, then advances the cycle.
 func generate_daily_quests() -> void:
 	current_quests.clear()
+	low_energy_mode = false
 	var day: TrainingDay = training_cycle[cycle_day_index]
 
 	if day.is_rest_day:
@@ -128,3 +133,51 @@ func complete_quest(quest_id: String, logged_value: float = 0.0) -> bool:
 			quest_completed.emit(quest)
 			return true
 	return false
+
+
+func has_lift_quests() -> bool:
+	for quest in current_quests:
+		if quest.category == "lift":
+			return true
+	return false
+
+
+func any_lift_quest_completed() -> bool:
+	for quest in current_quests:
+		if quest.category == "lift" and quest.completed:
+			return true
+	return false
+
+
+## Toggles today's "feeling low energy?" mode (spec v2 4.3): drops one set from
+## each not-yet-completed lift quest's target, or restores it when turned back off.
+## No-op if there's nothing to adjust or a lift quest is already completed today
+## (retroactively changing a finished quest's target doesn't make sense).
+func set_low_energy_mode(enabled: bool) -> void:
+	if enabled == low_energy_mode:
+		return
+	if not has_lift_quests() or any_lift_quest_completed():
+		return
+
+	var delta := -1 if enabled else 1
+	for quest in current_quests:
+		if quest.category == "lift":
+			_adjust_lift_quest_sets(quest, delta)
+
+	low_energy_mode = enabled
+	quests_generated.emit()
+
+
+func _adjust_lift_quest_sets(quest: Quest, delta: int) -> void:
+	var parts := quest.title.split(": ", true, 1)
+	if parts.size() != 2:
+		return
+	var exercise_name: String = parts[0]
+	var x_index := parts[1].find("x")
+	if x_index == -1:
+		return
+	var rep_range: String = parts[1].substr(x_index + 1)
+
+	var new_sets: int = max(1, int(quest.target_value) + delta)
+	quest.target_value = new_sets
+	quest.title = "%s: %dx%s" % [exercise_name, new_sets, rep_range]

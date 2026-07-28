@@ -33,6 +33,7 @@ func save_game() -> void:
 		"training_cycle": training_cycle_dicts,
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
+		"low_energy_mode": QuestManager.low_energy_mode,
 	}
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -81,6 +82,7 @@ func load_game() -> bool:
 		QuestManager.training_cycle = training_cycle
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
+	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
 
 	print("SaveManager: loaded save (version %s, last opened %s)" % [data.get("save_version", "?"), last_opened_date])
 	return true
@@ -100,7 +102,7 @@ func check_new_day() -> void:
 	print("SaveManager: new day detected (was %s, now %s)" % [last_opened_date if last_opened_date != "" else "never", today])
 	if last_opened_date != "":
 		GameManager.evaluate_streak()
-		HistoryManager.record_day(last_opened_date, QuestManager.current_quests)
+		HistoryManager.record_day(last_opened_date, QuestManager.current_quests, QuestManager.low_energy_mode)
 	QuestManager.generate_daily_quests()
 	last_opened_date = today
 	save_game()
