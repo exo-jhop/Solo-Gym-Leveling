@@ -34,6 +34,8 @@ func save_game() -> void:
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
 		"low_energy_mode": QuestManager.low_energy_mode,
+		"reminder_hour": NotificationManager.reminder_hour,
+		"reminder_enabled": NotificationManager.reminder_enabled,
 	}
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -83,6 +85,8 @@ func load_game() -> bool:
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
+	NotificationManager.reminder_hour = data.get("reminder_hour", NotificationManager.reminder_hour)
+	NotificationManager.reminder_enabled = data.get("reminder_enabled", NotificationManager.reminder_enabled)
 
 	print("SaveManager: loaded save (version %s, last opened %s)" % [data.get("save_version", "?"), last_opened_date])
 	return true

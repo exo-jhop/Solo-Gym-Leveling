@@ -1,12 +1,15 @@
 extends Control
 
-## Settings (spec 4.5): edit the training program's exercises, protein target, and creatine dose.
-## Notification preferences are explicitly out of scope for this pass.
-## Edits mutate QuestManager's live data directly; the Save button persists it via SaveManager.
-## Changes take effect starting the next daily quest generation, same as any other program edit.
+## Settings (spec 4.5): edit the training program's exercises, protein target, creatine
+## dose, and the end-of-day reminder (spec v2 4.1).
+## Edits mutate QuestManager/NotificationManager's live data directly; the Save button
+## persists it via SaveManager. Program changes take effect starting the next daily
+## quest generation, same as any other program edit.
 
 @onready var protein_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/ProteinRow/ProteinInput
 @onready var creatine_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/CreatineRow/CreatineInput
+@onready var reminder_enabled_check: CheckBox = $Margin/Root/Scroll/Content/NotificationSection/ReminderEnabledCheck
+@onready var reminder_hour_input: SpinBox = $Margin/Root/Scroll/Content/NotificationSection/ReminderHourRow/ReminderHourInput
 @onready var program_list: VBoxContainer = $Margin/Root/Scroll/Content/ProgramSection/ProgramList
 @onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var save_button: Button = $Margin/Root/ButtonRow/SaveButton
@@ -16,8 +19,12 @@ extends Control
 func _ready() -> void:
 	protein_input.value = QuestManager.protein_target_g
 	creatine_input.value = QuestManager.creatine_target_g
+	reminder_enabled_check.button_pressed = NotificationManager.reminder_enabled
+	reminder_hour_input.value = NotificationManager.reminder_hour
 	protein_input.value_changed.connect(_on_protein_changed)
 	creatine_input.value_changed.connect(_on_creatine_changed)
+	reminder_enabled_check.toggled.connect(_on_reminder_enabled_toggled)
+	reminder_hour_input.value_changed.connect(_on_reminder_hour_changed)
 	save_button.pressed.connect(_on_save_pressed)
 	back_button.pressed.connect(_go_back)
 
@@ -30,6 +37,14 @@ func _on_protein_changed(value: float) -> void:
 
 func _on_creatine_changed(value: float) -> void:
 	QuestManager.creatine_target_g = value
+
+
+func _on_reminder_enabled_toggled(pressed: bool) -> void:
+	NotificationManager.reminder_enabled = pressed
+
+
+func _on_reminder_hour_changed(value: float) -> void:
+	NotificationManager.reminder_hour = int(value)
 
 
 func _refresh_program() -> void:

@@ -76,6 +76,42 @@ value = 5.0
 [node name="HSeparator" type="HSeparator" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 
+[node name="NotificationSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NotificationHeader" type="Label" parent="Margin/Root/Scroll/Content/NotificationSection"]
+layout_mode = 2
+text = "End-of-Day Reminder"
+
+[node name="ReminderEnabledCheck" type="CheckBox" parent="Margin/Root/Scroll/Content/NotificationSection"]
+layout_mode = 2
+text = "Remind me if today's quests aren't done"
+
+[node name="ReminderHourRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NotificationSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ReminderHourLabel" type="Label" parent="Margin/Root/Scroll/Content/NotificationSection/ReminderHourRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reminder hour (24h)"
+
+[node name="ReminderHourInput" type="SpinBox" parent="Margin/Root/Scroll/Content/NotificationSection/ReminderHourRow"]
+layout_mode = 2
+min_value = 0.0
+max_value = 23.0
+step = 1.0
+value = 20.0
+
+[node name="ReminderNoticeLabel" type="Label" parent="Margin/Root/Scroll/Content/NotificationSection"]
+layout_mode = 2
+autowrap_mode = 2
+text = "This is an in-app reminder shown when you open the app — it can't notify you while the app is closed."
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/Root/Scroll/Content"]
+layout_mode = 2
+
 [node name="ProgramSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 theme_override_constants/separation = 8

@@ -2,6 +2,9 @@ extends Control
 
 ## Lobby / Hub screen. Main entry point — routes to the app's top-level sections.
 
+@onready var reminder_banner: HBoxContainer = $Margin/Root/ReminderBanner
+@onready var reminder_label: Label = $Margin/Root/ReminderBanner/ReminderLabel
+@onready var dismiss_button: Button = $Margin/Root/ReminderBanner/DismissButton
 @onready var rank_title_label: Label = $Margin/Root/RankTitleLabel
 @onready var quests_button: Button = $Margin/Root/QuestsButton
 @onready var stats_button: Button = $Margin/Root/StatsButton
@@ -16,8 +19,10 @@ func _ready() -> void:
 	training_log_button.pressed.connect(_on_training_log_pressed)
 	weekly_summary_button.pressed.connect(_on_weekly_summary_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
+	dismiss_button.pressed.connect(_on_dismiss_reminder_pressed)
 	GameManager.stats_changed.connect(_refresh_rank_title)
 	_refresh_rank_title()
+	reminder_banner.visible = NotificationManager.should_remind()
 
 
 func _refresh_rank_title() -> void:
@@ -44,3 +49,7 @@ func _on_weekly_summary_pressed() -> void:
 
 func _on_settings_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/settings/settings.tscn")
+
+
+func _on_dismiss_reminder_pressed() -> void:
+	reminder_banner.visible = false
