@@ -22,7 +22,7 @@ func _ready() -> void:
 	dismiss_button.pressed.connect(_on_dismiss_reminder_pressed)
 	GameManager.stats_changed.connect(_refresh_rank_title)
 	_refresh_rank_title()
-	reminder_banner.visible = NotificationManager.should_remind()
+	reminder_banner.visible = NotificationManager.any_reminder_due()
 
 
 func _refresh_rank_title() -> void:

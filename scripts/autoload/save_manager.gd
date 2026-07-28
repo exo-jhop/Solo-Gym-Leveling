@@ -35,8 +35,8 @@ func save_game() -> void:
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
 		"low_energy_mode": QuestManager.low_energy_mode,
-		"reminder_hour": NotificationManager.reminder_hour,
-		"reminder_enabled": NotificationManager.reminder_enabled,
+		"reminder_hours": NotificationManager.reminder_hours,
+		"reminder_enabled_map": NotificationManager.reminder_enabled,
 	}
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -87,8 +87,21 @@ func load_game() -> bool:
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
-	NotificationManager.reminder_hour = data.get("reminder_hour", NotificationManager.reminder_hour)
-	NotificationManager.reminder_enabled = data.get("reminder_enabled", NotificationManager.reminder_enabled)
+
+	# Legacy flat single-reminder saves (pre-v3): fold into the "general" category.
+	if data.has("reminder_hour"):
+		NotificationManager.reminder_hours["general"] = data.get("reminder_hour", NotificationManager.reminder_hours["general"])
+		NotificationManager.reminder_enabled["general"] = data.get("reminder_enabled", NotificationManager.reminder_enabled["general"])
+
+	var saved_hours = data.get("reminder_hours", {})
+	if saved_hours is Dictionary:
+		for category in saved_hours:
+			NotificationManager.reminder_hours[category] = saved_hours[category]
+
+	var saved_enabled = data.get("reminder_enabled_map", {})
+	if saved_enabled is Dictionary:
+		for category in saved_enabled:
+			NotificationManager.reminder_enabled[category] = saved_enabled[category]
 
 	print("SaveManager: loaded save (version %s, last opened %s)" % [data.get("save_version", "?"), last_opened_date])
 	return true

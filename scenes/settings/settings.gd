@@ -8,8 +8,7 @@ extends Control
 
 @onready var protein_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/ProteinRow/ProteinInput
 @onready var creatine_input: SpinBox = $Margin/Root/Scroll/Content/NutritionSection/CreatineRow/CreatineInput
-@onready var reminder_enabled_check: CheckBox = $Margin/Root/Scroll/Content/NotificationSection/ReminderEnabledCheck
-@onready var reminder_hour_input: SpinBox = $Margin/Root/Scroll/Content/NotificationSection/ReminderHourRow/ReminderHourInput
+@onready var reminder_list: VBoxContainer = $Margin/Root/Scroll/Content/NotificationSection/ReminderList
 @onready var program_list: VBoxContainer = $Margin/Root/Scroll/Content/ProgramSection/ProgramList
 @onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var save_button: Button = $Margin/Root/ButtonRow/SaveButton
@@ -19,15 +18,12 @@ extends Control
 func _ready() -> void:
 	protein_input.value = QuestManager.protein_target_g
 	creatine_input.value = QuestManager.creatine_target_g
-	reminder_enabled_check.button_pressed = NotificationManager.reminder_enabled
-	reminder_hour_input.value = NotificationManager.reminder_hour
 	protein_input.value_changed.connect(_on_protein_changed)
 	creatine_input.value_changed.connect(_on_creatine_changed)
-	reminder_enabled_check.toggled.connect(_on_reminder_enabled_toggled)
-	reminder_hour_input.value_changed.connect(_on_reminder_hour_changed)
 	save_button.pressed.connect(_on_save_pressed)
 	back_button.pressed.connect(_go_back)
 
+	_refresh_reminders()
 	_refresh_program()
 
 
@@ -39,12 +35,45 @@ func _on_creatine_changed(value: float) -> void:
 	QuestManager.creatine_target_g = value
 
 
-func _on_reminder_enabled_toggled(pressed: bool) -> void:
-	NotificationManager.reminder_enabled = pressed
+# Display label per reminder category — "general" is the synthetic all-quests bucket,
+# the rest match Quest.category values that have their own reminder configured.
+const REMINDER_LABELS := {
+	"general": "General end-of-day reminder",
+	"supplement": "Supplement reminder (creatine)",
+}
 
 
-func _on_reminder_hour_changed(value: float) -> void:
-	NotificationManager.reminder_hour = int(value)
+func _refresh_reminders() -> void:
+	for child in reminder_list.get_children():
+		child.queue_free()
+
+	var categories := NotificationManager.reminder_hours.keys()
+	categories.sort()
+	for category in categories:
+		reminder_list.add_child(_build_reminder_row(category))
+
+
+func _build_reminder_row(category: String) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var enabled_check := CheckBox.new()
+	enabled_check.text = REMINDER_LABELS.get(category, category.capitalize())
+	enabled_check.button_pressed = NotificationManager.reminder_enabled.get(category, true)
+	enabled_check.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enabled_check.toggled.connect(func(pressed: bool): NotificationManager.reminder_enabled[category] = pressed)
+	row.add_child(enabled_check)
+
+	var hour_input := SpinBox.new()
+	hour_input.min_value = 0
+	hour_input.max_value = 23
+	hour_input.step = 1
+	hour_input.value = NotificationManager.reminder_hours.get(category, 20)
+	hour_input.custom_minimum_size = Vector2(70, 0)
+	hour_input.value_changed.connect(func(value: float): NotificationManager.reminder_hours[category] = int(value))
+	row.add_child(hour_input)
+
+	return row
 
 
 func _refresh_program() -> void:
