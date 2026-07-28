@@ -18,6 +18,10 @@ func save_game() -> void:
 	for quest in QuestManager.current_quests:
 		quest_dicts.append(quest.to_dict())
 
+	var training_cycle_dicts: Array = []
+	for day in QuestManager.training_cycle:
+		training_cycle_dicts.append(day.to_dict())
+
 	var data := {
 		"save_version": SAVE_VERSION,
 		"last_opened_date": last_opened_date,
@@ -25,6 +29,9 @@ func save_game() -> void:
 		"hunter_stats": GameManager.hunter_stats.to_dict(),
 		"current_quests": quest_dicts,
 		"history": HistoryManager.to_dict(),
+		"training_cycle": training_cycle_dicts,
+		"protein_target_g": QuestManager.protein_target_g,
+		"creatine_target_g": QuestManager.creatine_target_g,
 	}
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -65,6 +72,14 @@ func load_game() -> bool:
 		QuestManager.current_quests.append(Quest.from_dict(quest_data))
 
 	HistoryManager.days = HistoryManager.from_dict(data.get("history", {}))
+
+	if data.has("training_cycle"):
+		var training_cycle: Array[TrainingDay] = []
+		for day_data in data["training_cycle"]:
+			training_cycle.append(TrainingDay.from_dict(day_data))
+		QuestManager.training_cycle = training_cycle
+	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
+	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 
 	print("SaveManager: loaded save (version %s, last opened %s)" % [data.get("save_version", "?"), last_opened_date])
 	return true

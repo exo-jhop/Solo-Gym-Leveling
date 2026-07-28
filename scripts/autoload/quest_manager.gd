@@ -5,8 +5,8 @@ extends Node
 signal quest_completed(quest: Quest)
 signal quests_generated
 
-# Placeholder 7-day cycle: training on days 0,1,3,4 (spec's "Day 1,2,4,5"), rest on 2,5,6.
-# Replace with user-edited program data once the Settings screen exists (spec 4.5).
+# Default 7-day cycle: training on days 0,1,3,4 (spec's "Day 1,2,4,5"), rest on 2,5,6.
+# User-editable from Settings (spec 4.5); SaveManager persists whatever the user has here.
 var training_cycle: Array[TrainingDay] = []
 
 var cycle_day_index: int = 0
@@ -15,8 +15,10 @@ var current_quests: Array[Quest] = []
 # Set by Home before navigating to Quest Detail, read there to look up the tapped quest.
 var selected_quest_id: String = ""
 
-const PROTEIN_TARGET_G := 90.0
-const CREATINE_TARGET_G := 5.0
+# User-editable from Settings (spec 4.5). Defaults match the original placeholder values.
+var protein_target_g: float = 90.0
+var creatine_target_g: float = 5.0
+
 const BODYWEIGHT_LOG_DAYS := [0, 3]  # cycle day indices that include a bodyweight quest
 
 
@@ -88,8 +90,8 @@ func generate_daily_quests() -> void:
 				"lift", stat, 15, exercise.sets, "sets"
 			))
 
-	current_quests.append(_make_quest("protein", "Hit %dg protein" % int(PROTEIN_TARGET_G), "nutrition", "INT", 10, PROTEIN_TARGET_G, "g"))
-	current_quests.append(_make_quest("creatine", "Take %dg creatine" % int(CREATINE_TARGET_G), "supplement", "SENSE", 5, CREATINE_TARGET_G, "g"))
+	current_quests.append(_make_quest("protein", "Hit %dg protein" % int(protein_target_g), "nutrition", "INT", 10, protein_target_g, "g"))
+	current_quests.append(_make_quest("creatine", "Take %dg creatine" % int(creatine_target_g), "supplement", "SENSE", 5, creatine_target_g, "g"))
 
 	if cycle_day_index in BODYWEIGHT_LOG_DAYS:
 		current_quests.append(_make_quest("bodyweight", "Log bodyweight", "nutrition", "INT", 5, 0.0, "kg"))
