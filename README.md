@@ -1,6 +1,8 @@
 # Solo: Gym Leveling
 
-A personal fitness RPG app built in Godot 4.7 (mobile). Turns your real gym program into quests: complete quests, earn XP, level up stats, and climb Hunter ranks — no paywalls, no penalty mechanics, no social features.
+A fitness app that turns your real gym program into an RPG. Complete quests, earn XP, level up your stats, and climb Hunter ranks — no paywalls, no penalty mechanics, no social features.
+
+Fully offline — all data is saved locally on-device, no account, server, or internet connection required.
 
 ## Core Loop
 
@@ -15,21 +17,6 @@ A personal fitness RPG app built in Godot 4.7 (mobile). Turns your real gym prog
 - No penalty mechanics (no stat decay, no "immunity tokens")
 - Quests stay tied to the real program, never generic templates
 - No social/multiplayer — this is a personal tool, not a social product
-
-See [`docs/Solo_Gym_Leveling_App_Spec_v2.md`](docs/Solo_Gym_Leveling_App_Spec_v2.md) for the full product spec and design rationale.
-
-## Project Structure
-
-```
-scenes/       UI screens (lobby, home, quest_detail, stats, settings, training_log, weekly_summary, system_popup)
-scripts/
-  autoload/   Global singletons: GameManager, QuestManager, HistoryManager, PRTracker, SaveManager, NotificationManager
-  resources/  Custom Resource definitions
-resources/    Godot resources, including the hunter_theme
-data/         Program/quest data
-assets/       Art, fonts, and other static assets
-docs/         App specs
-```
 
 ## Getting Started
 

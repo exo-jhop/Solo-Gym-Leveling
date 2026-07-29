@@ -12,8 +12,13 @@ const MAX_BACKFILL_DAYS := 30
 # How often the weekly weight-trend recalibration check runs (feature: weekly recalibration).
 const RECALIBRATION_INTERVAL_DAYS := 7
 
+# How often the streak forgiveness freeze replenishes (spec v2 section 3: "one freeze per
+# week, non-negotiable").
+const STREAK_FREEZE_INTERVAL_DAYS := 7
+
 var last_opened_date: String = ""
 var last_recalibration_date: String = ""
+var last_freeze_replenish_date: String = ""
 
 
 func _ready() -> void:
@@ -35,6 +40,7 @@ func save_game() -> void:
 		"save_version": SAVE_VERSION,
 		"last_opened_date": last_opened_date,
 		"last_recalibration_date": last_recalibration_date,
+		"last_freeze_replenish_date": last_freeze_replenish_date,
 		"cycle_day_index": QuestManager.cycle_day_index,
 		"hunter_stats": GameManager.hunter_stats.to_dict(),
 		"current_quests": quest_dicts,
@@ -83,6 +89,7 @@ func load_game() -> bool:
 	# Old saves predate this feature: bootstrap from a blank slate rather than defaulting to
 	# last_opened_date, so a long-idle reinstall doesn't immediately fire a stale suggestion.
 	last_recalibration_date = data.get("last_recalibration_date", "")
+	last_freeze_replenish_date = data.get("last_freeze_replenish_date", "")
 	QuestManager.cycle_day_index = data.get("cycle_day_index", 0)
 	GameManager.hunter_stats = HunterStats.from_dict(data.get("hunter_stats", {}))
 
@@ -153,6 +160,7 @@ func check_new_day() -> void:
 			HistoryManager.record_missed_day(_date_plus_days(last_opened_date, i))
 
 	_check_recalibration(today)
+	_check_streak_freeze_replenish(today)
 	QuestManager.generate_daily_quests()
 	last_opened_date = today
 	save_game()
@@ -178,6 +186,20 @@ func _check_recalibration(today: String) -> void:
 		# change, so it doesn't need the same confirm-before-apply treatment.
 		ProfileManager.profile.calorie_intensity = "normal"
 	last_recalibration_date = today
+
+
+## Weekly streak-freeze replenish (spec v2 section 3: "one freeze per week, non-negotiable").
+## Runs at most once every STREAK_FREEZE_INTERVAL_DAYS and resets the freeze to exactly 1
+## rather than stacking, so leaving it unused doesn't bank extra freezes for later.
+func _check_streak_freeze_replenish(today: String) -> void:
+	if last_freeze_replenish_date == "":
+		last_freeze_replenish_date = today
+		return
+	if _days_between(last_freeze_replenish_date, today) < STREAK_FREEZE_INTERVAL_DAYS:
+		return
+
+	GameManager.hunter_stats.streak_freezes_available = 1
+	last_freeze_replenish_date = today
 
 
 ## Converts a "YYYY-MM-DD" date string to a unix timestamp at midnight, for date arithmetic.
