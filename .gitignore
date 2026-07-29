@@ -2,3 +2,5 @@
 *.translation
 export.cfg
 export_presets.cfg
+/scratch_*.png
+/scratch_*.png.import
