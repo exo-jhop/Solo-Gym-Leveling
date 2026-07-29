@@ -39,7 +39,7 @@ docs/         App specs
 
 ### Installing the APK
 
-A prebuilt Android package is checked into the repo root as [`Solo Gym Leveling.apk`](Solo%20Gym%20Leveling.apk), signed with its matching `Solo Gym Leveling.apk.idsig`. Sideload it directly onto an Android device (enable "Install unknown apps" for your file manager/browser) instead of building from source.
+A prebuilt Android package is attached to the [`beta` release](https://github.com/exo-jhop/Solo-Gym-Leveling/releases/tag/beta) as `Solo Gym Leveling.apk`, signed with its matching `.apk.idsig`. Download it from the release and sideload it onto an Android device (enable "Install unknown apps" for your file manager/browser) instead of building from source.
 
 ## Tech
 
