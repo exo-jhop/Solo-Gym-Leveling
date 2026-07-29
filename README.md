@@ -37,6 +37,10 @@ docs/         App specs
 2. The main scene is `scenes/lobby/lobby.tscn`.
 3. Run the project from the editor, or export for Android via **Project > Export**.
 
+### Installing the APK
+
+A prebuilt Android package is checked into the repo root as [`Solo Gym Leveling.apk`](Solo%20Gym%20Leveling.apk), signed with its matching `Solo Gym Leveling.apk.idsig`. Sideload it directly onto an Android device (enable "Install unknown apps" for your file manager/browser) instead of building from source.
+
 ## Tech
 
 - Engine: Godot 4.7

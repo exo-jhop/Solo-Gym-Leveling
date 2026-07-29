@@ -18,14 +18,14 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 24
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
@@ -48,7 +48,7 @@ theme_override_constants/margin_bottom = 12
 
 [node name="StatsBox" type="VBoxContainer" parent="Margin/Root/StatsCard/StatsCardMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
 [node name="XpLabel" type="Label" parent="Margin/Root/StatsCard/StatsCardMargin/StatsBox"]
 layout_mode = 2
@@ -67,5 +67,6 @@ layout_mode = 2
 text = "Top stat this week: —"
 
 [node name="BackButton" type="Button" parent="Margin/Root"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 text = "Back to Lobby"

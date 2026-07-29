@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://d8k3n1capture01"]
+
+[ext_resource type="Script" path="res://scenes/ui/mobile_capture_test.gd" id="1"]
+
+[node name="MobileCaptureTest" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
