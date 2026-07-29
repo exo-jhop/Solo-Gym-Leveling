@@ -11,6 +11,12 @@ extends Resource
 @export var days_per_week: int = 4  # 3-6, drives ProgramGenerator's split choice
 @export var equipment_access: String = "full_gym"  # "full_gym", "dumbbells_only", "bodyweight_only"
 
+# "normal" or "increased" — bumped by an accepted weekly recalibration suggestion when the
+# logged weight trend contradicts the goal (see ProgramRecalibrator), silently relaxed back
+# to "normal" once a later weekly check shows the trend realigned. Only changes the wording
+# ProfileManager.calorie_direction_label() shows, never a precise number (spec 2.2/7).
+@export var calorie_intensity: String = "normal"
+
 
 ## g/day protein target: weight_kg * a goal-scaled multiplier within the established
 ## 1.6-2.2 range (spec 2.2). Build Muscle sits at the top of the range, General Fitness
@@ -42,6 +48,7 @@ func to_dict() -> Dictionary:
 		"onboarding_complete": onboarding_complete,
 		"days_per_week": days_per_week,
 		"equipment_access": equipment_access,
+		"calorie_intensity": calorie_intensity,
 	}
 
 
@@ -54,4 +61,5 @@ static func from_dict(data: Dictionary) -> HunterProfile:
 	profile.onboarding_complete = data.get("onboarding_complete", false)
 	profile.days_per_week = data.get("days_per_week", 4)
 	profile.equipment_access = data.get("equipment_access", "full_gym")
+	profile.calorie_intensity = data.get("calorie_intensity", "normal")
 	return profile

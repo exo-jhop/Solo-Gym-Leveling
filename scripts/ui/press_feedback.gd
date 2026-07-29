@@ -8,6 +8,8 @@ const PRESS_SCALE := Vector2(0.97, 0.97)
 const PRESS_DURATION := 0.1
 const RELEASE_DURATION := 0.15
 
+const CLICK_STREAM: AudioStream = preload("res://res/sfx/clicksoundeffect.mp3")
+
 
 static func attach(button: BaseButton) -> void:
 	button.button_down.connect(_on_down.bind(button))
@@ -16,6 +18,18 @@ static func attach(button: BaseButton) -> void:
 
 static func _on_down(button: BaseButton) -> void:
 	_animate(button, PRESS_SCALE, PRESS_DURATION)
+	_play_click(button)
+
+
+## One-shot player parented to the pressed button itself — attach() is called across
+## every scene with no shared audio node available, so each press spawns and cleans up
+## its own AudioStreamPlayer rather than requiring a new autoload just for clicks.
+static func _play_click(button: BaseButton) -> void:
+	var player := AudioStreamPlayer.new()
+	player.stream = CLICK_STREAM
+	button.add_child(player)
+	player.finished.connect(player.queue_free)
+	player.play()
 
 
 static func _on_up(button: BaseButton) -> void:

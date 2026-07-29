@@ -23,7 +23,17 @@ var creatine_target_g: float = 5.0
 # persisted across app restarts within the same day so the choice sticks.
 var low_energy_mode: bool = false
 
+# Whether Home has already shown the "all quests complete" toast for today's set.
+# Reset on every generate_daily_quests() call so it can fire again tomorrow.
+var all_complete_shown: bool = false
+
 const BODYWEIGHT_LOG_DAYS := [0, 3]  # cycle day indices that include a bodyweight quest
+
+# Staged by SaveManager's weekly check (see ProgramRecalibrator) when the logged weight
+# trend doesn't match the goal's expectation. Not persisted — if the app closes before the
+# user responds, it's simply re-evaluated on the next weekly check rather than reappearing
+# stale. Consumed by the recalibration popup.
+var pending_recalibration: Dictionary = {}
 
 
 func _ready() -> void:
@@ -78,17 +88,35 @@ func _exercise(name: String, sets: int, rep_range: String) -> Exercise:
 	return exercise
 
 
+## Maps a training day's name to the stat its lifts train. Covers both the placeholder
+## cycle ("Upper/Lower Body A/B") and every split ProgramGenerator produces (Full Body,
+## Push/Pull/Legs, Arms & Core). Full Body days alternate STR/VIT per exercise index
+## since a single day trains both.
+func _stat_for_day(day_name: String, exercise_index: int) -> String:
+	if day_name.begins_with("Upper") or day_name.begins_with("Push"):
+		return "STR"
+	if day_name.begins_with("Lower") or day_name.begins_with("Pull") or day_name.begins_with("Legs"):
+		return "VIT"
+	if day_name.begins_with("Full Body"):
+		return "STR" if exercise_index % 2 == 0 else "VIT"
+	if day_name.begins_with("Arms") or day_name.contains("Core"):
+		return "AGI"
+	return "VIT"
+
+
 ## Builds current_quests for the current cycle_day_index, then advances the cycle.
 func generate_daily_quests() -> void:
 	current_quests.clear()
 	low_energy_mode = false
+	all_complete_shown = false
 	var day: TrainingDay = training_cycle[cycle_day_index]
 
 	if day.is_rest_day:
 		current_quests.append(_make_quest("recovery_%d" % cycle_day_index, "Rest and Recover", "recovery", "", 5, 0.0, ""))
 	else:
-		for exercise in day.exercises:
-			var stat := "STR" if day.day_name.begins_with("Upper") else "VIT"
+		for i in day.exercises.size():
+			var exercise: Exercise = day.exercises[i]
+			var stat := _stat_for_day(day.day_name, i)
 			var quest := _make_quest(
 				"lift_%s" % exercise.name.to_snake_case(),
 				"%s: %dx%s" % [exercise.name, exercise.sets, exercise.rep_range],
@@ -139,6 +167,15 @@ func complete_quest(quest_id: String, logged_value: float = 0.0, logged_weight: 
 	return false
 
 
+func all_quests_completed() -> bool:
+	if current_quests.is_empty():
+		return false
+	for quest in current_quests:
+		if not quest.completed:
+			return false
+	return true
+
+
 func has_lift_quests() -> bool:
 	for quest in current_quests:
 		if quest.category == "lift":
@@ -178,3 +215,32 @@ func set_low_energy_mode(enabled: bool) -> void:
 
 	low_energy_mode = enabled
 	quests_generated.emit()
+
+
+## Applies an accepted weekly recalibration suggestion — a single Accept bundles both the
+## training and nutrition reaction, there's no separate opt-in for each (see
+## ProgramRecalibrator): adds `set_delta` sets to every lift exercise in the live
+## training_cycle (capped at `max_sets` so accepting several weeks running doesn't grow
+## volume unbounded), syncs profile.weight_kg to the observed trend and recalculates the
+## protein target from it, and bumps calorie_intensity so the calorie guidance text reads
+## more assertively. Persisted the same way Regenerate Program is — the caller is expected
+## to save afterward.
+func apply_recalibration(suggestion: Dictionary) -> void:
+	var set_delta: int = suggestion.get("set_delta", 1)
+	var max_sets: int = suggestion.get("max_sets", 6)
+	for day in training_cycle:
+		if day.is_rest_day:
+			continue
+		for exercise in day.exercises:
+			exercise.sets = mini(exercise.sets + set_delta, max_sets)
+
+	if suggestion.has("weight_kg"):
+		ProfileManager.profile.weight_kg = suggestion["weight_kg"]
+		ProfileManager.profile.calorie_intensity = suggestion.get("calorie_intensity", "normal")
+		ProfileManager.apply_targets()
+
+	pending_recalibration = {}
+
+
+func dismiss_recalibration() -> void:
+	pending_recalibration = {}

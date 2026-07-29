@@ -20,6 +20,7 @@ const NEW_PR_ACCENT := Color(0.3, 0.85, 0.4, 1.0)
 @onready var kind_label: Label = $Dim/CenterContainer/Panel/Margin/VBox/KindLabel
 @onready var value_label: Label = $Dim/CenterContainer/Panel/Margin/VBox/ValueLabel
 @onready var hint_label: Label = $Dim/CenterContainer/Panel/Margin/VBox/HintLabel
+@onready var startup_sfx: AudioStreamPlayer = $StartupSfx
 
 var _queue: Array = []
 var _showing: bool = false
@@ -38,6 +39,10 @@ func _ready() -> void:
 
 	_panel_style = panel.get_theme_stylebox("panel").duplicate()
 	panel.add_theme_stylebox_override("panel", _panel_style)
+
+	# Runs once per process launch: SystemPopup is an autoload scene, so _ready() only
+	# fires at app startup, not on every scene change.
+	startup_sfx.play()
 
 
 func _on_leveled_up(new_level: int) -> void:

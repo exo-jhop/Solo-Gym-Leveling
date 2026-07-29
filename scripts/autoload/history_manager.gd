@@ -60,6 +60,26 @@ func get_day(date: String) -> DailyLog:
 	return days.get(date)
 
 
+## Last `limit` completed bodyweight-quest values (kg), oldest first. Walks backward from
+## the most recent recorded day, taking at most one value per day, and stops once `limit`
+## are collected. Used by ProgramRecalibrator's weekly trend check.
+func recent_bodyweight_logs(limit: int) -> Array:
+	var values: Array = []
+	var dates := days.keys()
+	dates.sort()
+	dates.reverse()
+	for date in dates:
+		if values.size() >= limit:
+			break
+		var log: DailyLog = days[date]
+		for summary in log.quest_summaries:
+			if summary.get("id", "") == "bodyweight" and summary.get("completed", false) and summary.get("logged_value", 0.0) > 0.0:
+				values.append(summary["logged_value"])
+				break
+	values.reverse()
+	return values
+
+
 func to_dict() -> Dictionary:
 	var data := {}
 	for date in days:

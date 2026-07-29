@@ -9,7 +9,11 @@ const SAVE_VERSION := 1
 # long reinstall/uninstall gap doesn't generate hundreds of DailyLog entries at once.
 const MAX_BACKFILL_DAYS := 30
 
+# How often the weekly weight-trend recalibration check runs (feature: weekly recalibration).
+const RECALIBRATION_INTERVAL_DAYS := 7
+
 var last_opened_date: String = ""
+var last_recalibration_date: String = ""
 
 
 func _ready() -> void:
@@ -30,6 +34,7 @@ func save_game() -> void:
 	var data := {
 		"save_version": SAVE_VERSION,
 		"last_opened_date": last_opened_date,
+		"last_recalibration_date": last_recalibration_date,
 		"cycle_day_index": QuestManager.cycle_day_index,
 		"hunter_stats": GameManager.hunter_stats.to_dict(),
 		"current_quests": quest_dicts,
@@ -75,6 +80,9 @@ func load_game() -> bool:
 
 	var data: Dictionary = parsed
 	last_opened_date = data.get("last_opened_date", "")
+	# Old saves predate this feature: bootstrap from a blank slate rather than defaulting to
+	# last_opened_date, so a long-idle reinstall doesn't immediately fire a stale suggestion.
+	last_recalibration_date = data.get("last_recalibration_date", "")
 	QuestManager.cycle_day_index = data.get("cycle_day_index", 0)
 	GameManager.hunter_stats = HunterStats.from_dict(data.get("hunter_stats", {}))
 
@@ -144,9 +152,32 @@ func check_new_day() -> void:
 		for i in range(1, missed_days + 1):
 			HistoryManager.record_missed_day(_date_plus_days(last_opened_date, i))
 
+	_check_recalibration(today)
 	QuestManager.generate_daily_quests()
 	last_opened_date = today
 	save_game()
+
+
+## Weekly weight-trend check (feature: weekly recalibration). Runs at most once every
+## RECALIBRATION_INTERVAL_DAYS; stages a suggestion on QuestManager for the recalibration
+## popup to pick up if the logged bodyweight trend doesn't match the goal's expectation.
+func _check_recalibration(today: String) -> void:
+	if last_recalibration_date == "":
+		last_recalibration_date = today
+		return
+	if _days_between(last_recalibration_date, today) < RECALIBRATION_INTERVAL_DAYS:
+		return
+
+	var logs := HistoryManager.recent_bodyweight_logs(ProgramRecalibrator.MIN_LOGS)
+	var suggestion := ProgramRecalibrator.evaluate(ProfileManager.profile.goal, logs, ProfileManager.profile.weight_kg)
+	if not suggestion.is_empty():
+		QuestManager.pending_recalibration = suggestion
+	elif ProfileManager.profile.calorie_intensity != "normal":
+		# Trend realigned with the goal since the last escalation — relax the wording back
+		# down. Silent (no popup): this only changes phrasing, not an actual training/nutrition
+		# change, so it doesn't need the same confirm-before-apply treatment.
+		ProfileManager.profile.calorie_intensity = "normal"
+	last_recalibration_date = today
 
 
 ## Converts a "YYYY-MM-DD" date string to a unix timestamp at midnight, for date arithmetic.

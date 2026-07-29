@@ -57,6 +57,7 @@ var _rank_hex: RankHexBadge
 func _ready() -> void:
 	GameManager.stats_changed.connect(_refresh_header)
 	QuestManager.quests_generated.connect(_refresh_quests)
+	QuestManager.quest_completed.connect(_on_quest_completed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	lobby_button.pressed.connect(_on_lobby_pressed)
 	PressFeedback.attach(stats_button)
@@ -82,6 +83,7 @@ func _ready() -> void:
 	_refresh_header()
 	_refresh_quests()
 	_refresh_reset_card()
+	_check_all_quests_complete()
 
 
 func _make_chamfered_style(accent: Color) -> ChamferedStyleBox:
@@ -164,14 +166,18 @@ func _rebuild_quest_cards() -> void:
 		row.add_theme_constant_override("separation", 22)
 		card_margin.add_child(row)
 
-		var check := CheckBox.new()
-		check.text = ""
-		check.custom_minimum_size = Vector2(56, 56)
-		check.button_pressed = quest.completed
-		check.disabled = quest.completed
-		check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		check.toggled.connect(_on_quest_toggled.bind(quest))
-		row.add_child(check)
+		# Lift quests need a real logged value/weight (set via Quest Detail's "LOG" flow) —
+		# a bare checkbox here would complete them with target_value (a set count)
+		# misrecorded as reps, polluting PRTracker. Only non-lift quests get the checkbox.
+		if quest.category != "lift":
+			var check := CheckBox.new()
+			check.text = ""
+			check.custom_minimum_size = Vector2(56, 56)
+			check.button_pressed = quest.completed
+			check.disabled = quest.completed
+			check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			check.toggled.connect(_on_quest_toggled.bind(quest))
+			row.add_child(check)
 
 		var info_box := VBoxContainer.new()
 		info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -282,6 +288,60 @@ func _on_quest_toggled(pressed: bool, quest: Quest) -> void:
 	_last_completed_id = quest.id
 	_refresh_quests()
 	_refresh_header()
+
+
+func _on_quest_completed(_quest: Quest) -> void:
+	_check_all_quests_complete()
+
+
+## Fires once per day the moment the last quest is completed (whether checked off
+## here on Home or logged from Quest Detail), rather than every time Home is revisited
+## after that point — QuestManager.all_complete_shown is the day-scoped latch for that.
+func _check_all_quests_complete() -> void:
+	if QuestManager.all_complete_shown:
+		return
+	if not QuestManager.all_quests_completed():
+		return
+	QuestManager.all_complete_shown = true
+	_show_all_complete_toast()
+
+
+## Lightweight bottom banner (per design system v2: routine completion is a toast,
+## the Level-up/Rank-up SystemPopup is reserved for those milestones only).
+func _show_all_complete_toast() -> void:
+	var toast := PanelContainer.new()
+	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast.add_theme_stylebox_override("panel", _make_chamfered_style(SUCCESS_COLOR))
+	toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	toast.anchor_top = 1.0
+	toast.offset_top = -140.0
+	toast.offset_bottom = -80.0
+	toast.pivot_offset = Vector2(toast.size.x / 2.0, toast.size.y / 2.0)
+	toast.modulate.a = 0.0
+	add_child(toast)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	toast.add_child(margin)
+
+	var label := Label.new()
+	label.text = "All quests complete for today. Well done, Hunter."
+	label.theme_type_variation = &"AccentLabel"
+	margin.add_child(label)
+
+	# Re-center now that the label has given the panel its actual size.
+	await get_tree().process_frame
+	toast.offset_left = -toast.size.x / 2.0
+	toast.offset_right = toast.size.x / 2.0
+
+	var tween := create_tween()
+	tween.tween_property(toast, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(2.5)
+	tween.tween_property(toast, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(toast.queue_free)
 
 
 func _on_stats_pressed() -> void:

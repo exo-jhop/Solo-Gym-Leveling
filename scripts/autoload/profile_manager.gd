@@ -30,12 +30,32 @@ const EQUIPMENT_LABELS := {
 }
 
 # Direction only, no hard numbers (spec 2.2/7) — points back to the maintenance-formula
-# + adjust-by-trend reasoning rather than claiming a precise figure.
+# + adjust-by-trend reasoning rather than claiming a precise figure. "increased" wording is
+# used once an accepted weekly recalibration suggestion has flagged the logged weight trend
+# as contradicting the goal (see ProgramRecalibrator) — still no numbers, just more assertive
+# phrasing. maintenance has no "increased" variant: neither goal that maps to it
+# (get_stronger/general_fitness) is ever evaluated by ProgramRecalibrator.
 const CALORIE_DIRECTION_LABELS := {
-	"surplus": "Slight surplus — eat a bit above maintenance, adjust by watching the weekly trend.",
-	"deficit": "Slight deficit — eat a bit below maintenance, adjust by watching the weekly trend.",
-	"maintenance": "Maintenance — eat around your maintenance level, adjust by watching the weekly trend.",
+	"surplus": {
+		"normal": "Slight surplus — eat a bit above maintenance, adjust by watching the weekly trend.",
+		"increased": "Bigger surplus — your weight hasn't been trending up, eat further above maintenance.",
+	},
+	"deficit": {
+		"normal": "Slight deficit — eat a bit below maintenance, adjust by watching the weekly trend.",
+		"increased": "Bigger deficit — your weight hasn't been trending down, eat further below maintenance.",
+	},
+	"maintenance": {
+		"normal": "Maintenance — eat around your maintenance level, adjust by watching the weekly trend.",
+	},
 }
+
+
+## Calorie-direction guidance text for the current profile, keyed by direction then
+## intensity, falling back to "normal" if a goal/intensity combination has no entry
+## (e.g. maintenance, which never escalates).
+func calorie_direction_label() -> String:
+	var by_intensity: Dictionary = CALORIE_DIRECTION_LABELS[profile.calorie_direction()]
+	return by_intensity.get(profile.calorie_intensity, by_intensity["normal"])
 
 
 func needs_onboarding() -> bool:

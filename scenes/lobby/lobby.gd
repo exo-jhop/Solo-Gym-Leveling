@@ -6,11 +6,12 @@ extends Control
 @onready var reminder_label: Label = $Margin/Root/ReminderBanner/ReminderLabel
 @onready var dismiss_button: Button = $Margin/Root/ReminderBanner/DismissButton
 @onready var rank_title_label: Label = $Margin/Root/RankTitleLabel
-@onready var quests_button: Button = $Margin/Root/QuestsButton
-@onready var stats_button: Button = $Margin/Root/StatsButton
-@onready var training_log_button: Button = $Margin/Root/TrainingLogButton
-@onready var weekly_summary_button: Button = $Margin/Root/WeeklySummaryButton
-@onready var settings_button: Button = $Margin/Root/SettingsButton
+@onready var quests_button: Button = $Margin/Root/ContentRow/ButtonsColumn/QuestsButton
+@onready var stats_button: Button = $Margin/Root/ContentRow/ButtonsColumn/StatsButton
+@onready var training_log_button: Button = $Margin/Root/ContentRow/ButtonsColumn/TrainingLogButton
+@onready var weekly_summary_button: Button = $Margin/Root/ContentRow/ButtonsColumn/WeeklySummaryButton
+@onready var settings_button: Button = $Margin/Root/ContentRow/ButtonsColumn/SettingsButton
+@onready var notification_sfx: AudioStreamPlayer = $NotificationSfx
 
 
 func _ready() -> void:
@@ -41,6 +42,8 @@ func _ready() -> void:
 	GameManager.stats_changed.connect(_refresh_rank_title)
 	_refresh_rank_title()
 	reminder_banner.visible = NotificationManager.any_reminder_due()
+	if reminder_banner.visible:
+		notification_sfx.play()
 
 
 func _refresh_rank_title() -> void:

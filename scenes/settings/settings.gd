@@ -24,6 +24,10 @@ extends Control
 @onready var nutrition_card: PanelContainer = $Margin/Root/Scroll/Content/NutritionCard
 @onready var notification_card: PanelContainer = $Margin/Root/Scroll/Content/NotificationCard
 
+# Set once the user edits the protein field directly, so Save doesn't clobber a manual
+# override with ProfileManager.apply_targets()'s formula-calculated value.
+var _protein_manually_edited := false
+
 func _ready() -> void:
 	for card in [profile_card, nutrition_card, notification_card]:
 		card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
@@ -101,12 +105,13 @@ func _refresh_calculated() -> void:
 		calculated_label.text = "Enter your weight to see calculated targets."
 		return
 	var protein := profile.calculate_protein_target_g()
-	var direction_text: String = ProfileManager.CALORIE_DIRECTION_LABELS[profile.calorie_direction()]
+	var direction_text: String = ProfileManager.calorie_direction_label()
 	calculated_label.text = "Calculated protein target: %dg/day\n%s" % [int(protein), direction_text]
 
 
 func _on_protein_changed(value: float) -> void:
 	QuestManager.protein_target_g = value
+	_protein_manually_edited = true
 
 
 func _on_creatine_changed(value: float) -> void:
@@ -264,8 +269,9 @@ func _on_remove_exercise(day: TrainingDay, exercise_index: int) -> void:
 
 
 func _on_save_pressed() -> void:
-	ProfileManager.apply_targets()
-	protein_input.value = QuestManager.protein_target_g
+	if not _protein_manually_edited:
+		ProfileManager.apply_targets()
+		protein_input.set_value_no_signal(QuestManager.protein_target_g)
 	SaveManager.save_game()
 	status_label.text = "Saved."
 

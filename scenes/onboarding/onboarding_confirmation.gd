@@ -11,7 +11,7 @@ extends Control
 func _ready() -> void:
 	var profile := ProfileManager.profile
 	var protein := profile.calculate_protein_target_g()
-	var direction_text: String = ProfileManager.CALORIE_DIRECTION_LABELS[profile.calorie_direction()]
+	var direction_text: String = ProfileManager.calorie_direction_label()
 	summary_label.text = "Calculated protein target: %dg/day\n%s\n\nThese feed into your daily quests — you can revisit them anytime in Settings > Profile." % [int(protein), direction_text]
 	finish_button.pressed.connect(_on_finish_pressed)
 	PressFeedback.attach(finish_button)
