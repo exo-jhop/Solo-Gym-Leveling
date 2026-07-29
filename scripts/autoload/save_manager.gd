@@ -25,6 +25,14 @@ func _ready() -> void:
 	load_game()
 	GameManager.ensure_title_synced()
 	check_new_day()
+	QuestManager.quest_completed.connect(_on_quest_completed)
+
+
+## Quest completions only lived in memory until the next day-rollover call to
+## save_game() — stopping/restarting the app mid-day silently reverted every
+## quest checked off that day. Persist immediately instead.
+func _on_quest_completed(_quest: Quest) -> void:
+	save_game()
 
 
 func save_game() -> void:

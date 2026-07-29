@@ -154,6 +154,8 @@ func _rebuild_quest_cards() -> void:
 		var card := PanelContainer.new()
 		var card_style := _make_chamfered_style(SUCCESS_COLOR if quest.completed else PRIMARY_ACCENT)
 		card.add_theme_stylebox_override("panel", card_style)
+		if quest.completed:
+			card.modulate.a = 0.55
 
 		var card_margin := MarginContainer.new()
 		card_margin.add_theme_constant_override("margin_left", 24)
@@ -188,28 +190,20 @@ func _rebuild_quest_cards() -> void:
 		name_row.add_theme_constant_override("separation", 14)
 		info_box.add_child(name_row)
 
-		var name_label := Label.new()
-		name_label.text = quest.exercise_name if quest.exercise_name != "" else quest.title
-		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_row.add_child(name_label)
+		var quest_name := quest.exercise_name if quest.exercise_name != "" else quest.title
+		name_row.add_child(_quest_text(quest_name, quest.completed))
 
 		if quest.stat_reward != "":
 			name_row.add_child(_build_stat_pill(quest.stat_reward))
 
 		var target_text := _target_text(quest)
 		if target_text != "":
-			var target_label := Label.new()
-			target_label.theme_type_variation = &"SecondaryLabel"
-			target_label.text = target_text
-			info_box.add_child(target_label)
+			info_box.add_child(_quest_text(target_text, quest.completed, &"SecondaryLabel"))
 
-		var xp_label := Label.new()
-		xp_label.theme_type_variation = &"SecondaryLabel"
-		xp_label.text = "+%d XP" % quest.xp_reward
-		info_box.add_child(xp_label)
+		info_box.add_child(_quest_text("+%d XP" % quest.xp_reward, quest.completed, &"SecondaryLabel"))
 
 		var log_button := Button.new()
-		log_button.text = "LOG"
+		log_button.text = "DONE" if quest.completed else "LOG"
 		log_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		log_button.pressed.connect(_on_log_pressed.bind(quest))
 		PressFeedback.attach(log_button)
@@ -262,6 +256,29 @@ func _target_text(quest: Quest) -> String:
 	return ""
 
 
+## Quest card text line; struck through once the quest is completed. A RichTextLabel
+## is only needed for the strikethrough case — a plain Label can't render [s] markup.
+func _quest_text(text: String, completed: bool, variation: StringName = &"") -> Control:
+	if not completed:
+		var label := Label.new()
+		label.text = text
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if variation != &"":
+			label.theme_type_variation = variation
+		return label
+
+	var rich := RichTextLabel.new()
+	rich.bbcode_enabled = true
+	rich.text = "[s]%s[/s]" % text
+	rich.fit_content = true
+	rich.scroll_active = false
+	rich.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rich.add_theme_color_override("default_color", SECONDARY_TEXT)
+	if variation != &"":
+		rich.add_theme_font_size_override("normal_font_size", 14)
+	return rich
+
+
 func _pulse_card(style: ChamferedStyleBox) -> void:
 	var base_width := style.accent_width
 	var tween := create_tween()
@@ -306,16 +323,15 @@ func _check_all_quests_complete() -> void:
 	_show_all_complete_toast()
 
 
-## Lightweight bottom banner (per design system v2: routine completion is a toast,
+## Lightweight banner (per design system v2: routine completion is a toast,
 ## the Level-up/Rank-up SystemPopup is reserved for those milestones only).
 func _show_all_complete_toast() -> void:
 	var toast := PanelContainer.new()
 	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	toast.add_theme_stylebox_override("panel", _make_chamfered_style(SUCCESS_COLOR))
-	toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	toast.anchor_top = 1.0
-	toast.offset_top = -140.0
-	toast.offset_bottom = -80.0
+	toast.set_anchors_preset(Control.PRESET_CENTER)
+	toast.offset_top = -40.0
+	toast.offset_bottom = 40.0
 	toast.pivot_offset = Vector2(toast.size.x / 2.0, toast.size.y / 2.0)
 	toast.modulate.a = 0.0
 	add_child(toast)
@@ -328,8 +344,11 @@ func _show_all_complete_toast() -> void:
 	toast.add_child(margin)
 
 	var label := Label.new()
-	label.text = "All quests complete for today. Well done, Hunter."
+	label.text = "All quests complete.\nRest up, Hunter — come back tomorrow."
 	label.theme_type_variation = &"AccentLabel"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	label.custom_minimum_size = Vector2(260, 0)
 	margin.add_child(label)
 
 	# Re-center now that the label has given the panel its actual size.
