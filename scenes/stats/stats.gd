@@ -30,7 +30,7 @@ const SESSIONS_TREND_WINDOW := 5
 @onready var breakdown_header: Label = $Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox/StatBreakdownHeader
 @onready var breakdown_list: VBoxContainer = $Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox/StatBreakdownList
 @onready var pr_list: VBoxContainer = $Margin/Root/ScrollContainer/PRList
-@onready var back_button: Button = $BackButton
+@onready var back_button: Button = $Margin/Root/BackButton
 
 
 func _ready() -> void:
@@ -38,6 +38,8 @@ func _ready() -> void:
 	radar_chart.set_tappable(true)
 	radar_chart.stat_tapped.connect(_on_stat_tapped)
 	back_button.pressed.connect(_go_back)
+	PressFeedback.attach(back_button)
+	NavButtonStyle.apply(back_button)
 	_refresh()
 
 
@@ -178,6 +180,7 @@ func _build_pr_row(exercise_name: String) -> PanelContainer:
 		detail_container.visible = not detail_container.visible
 		expand_button.text = "▲" if detail_container.visible else "▼"
 	)
+	PressFeedback.attach(expand_button)
 
 	return card
 
@@ -240,4 +243,4 @@ func _all_lift_session_dates() -> Array:
 
 
 func _go_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")

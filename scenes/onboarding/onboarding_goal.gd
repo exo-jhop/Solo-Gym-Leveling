@@ -12,9 +12,10 @@ func _ready() -> void:
 		var button := Button.new()
 		button.text = ProfileManager.GOAL_LABELS[goal]
 		button.pressed.connect(_on_goal_pressed.bind(goal))
+		PressFeedback.attach(button)
 		goal_list.add_child(button)
 
 
 func _on_goal_pressed(goal: String) -> void:
 	ProfileManager.profile.goal = goal
-	get_tree().change_scene_to_file("res://scenes/onboarding/onboarding_metrics.tscn")
+	SceneTransition.go_to_scene("res://scenes/onboarding/onboarding_metrics.tscn")

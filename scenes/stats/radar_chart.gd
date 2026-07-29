@@ -14,8 +14,8 @@ const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 
 const STAT_LABELS := ["STR", "VIT", "AGI", "INT", "SENSE"]
 const RING_COUNT := 4
-const LABEL_MARGIN := 36.0
-const LABEL_FONT_SIZE := 16
+const LABEL_MARGIN := 64.0
+const LABEL_FONT_SIZE := 26
 
 # #00B8FF (v2 primary accent, was #00D9FF)
 const GRID_COLOR := Color(0.0, 0.721569, 1.0, 0.2)
@@ -85,7 +85,7 @@ func _draw() -> void:
 			var angle := -PI / 2.0 + i * angle_step
 			points.append(center + Vector2(cos(angle), sin(angle)) * ring_radius)
 		points.append(points[0])
-		draw_polyline(points, GRID_COLOR, 1.0)
+		draw_polyline(points, GRID_COLOR, 1.5)
 
 	# axis lines + labels
 	var font := STAT_FONT
@@ -93,7 +93,7 @@ func _draw() -> void:
 	for i in range(axis_count):
 		var angle := -PI / 2.0 + i * angle_step
 		var axis_point := center + Vector2(cos(angle), sin(angle)) * radius
-		draw_line(center, axis_point, GRID_COLOR, 1.0)
+		draw_line(center, axis_point, GRID_COLOR, 1.5)
 
 		var label_point := center + Vector2(cos(angle), sin(angle)) * (radius + LABEL_MARGIN * 0.6)
 		var label_text := "%s %d" % [STAT_LABELS[i], _values[i]]
@@ -110,6 +110,6 @@ func _draw() -> void:
 	draw_colored_polygon(value_points, FILL_COLOR)
 	var closed_points := value_points.duplicate()
 	closed_points.append(value_points[0])
-	draw_polyline(closed_points, LINE_COLOR, 2.0)
+	draw_polyline(closed_points, LINE_COLOR, 3.5, true)
 	for p in value_points:
-		draw_circle(p, 3.0, LINE_COLOR)
+		draw_circle(p, 5.0, LINE_COLOR)

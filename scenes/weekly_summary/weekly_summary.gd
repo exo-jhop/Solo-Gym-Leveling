@@ -8,10 +8,6 @@ extends Control
 const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
 const WEEKDAY_LABELS := ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
-const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
-const DIVIDER_COLOR := Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C
-const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "bottom": 10.0}
-
 @onready var stats_card: PanelContainer = $Margin/Root/StatsCard
 @onready var xp_label: Label = $Margin/Root/StatsCard/StatsCardMargin/StatsBox/XpLabel
 @onready var quests_label: Label = $Margin/Root/StatsCard/StatsCardMargin/StatsBox/QuestsLabel
@@ -20,45 +16,13 @@ const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "botto
 @onready var back_button: Button = $Margin/Root/BackButton
 
 
-# Same chamfered nav-button treatment as lobby.gd's helper of the same name.
-func _apply_chamfered_button_style(button: Button) -> void:
-	var normal := ChamferedStyleBox.new()
-	normal.border_color = DIVIDER_COLOR
-	normal.accent_color = PRIMARY_ACCENT
-	normal.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	normal.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	normal.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	normal.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var hover := ChamferedStyleBox.new()
-	hover.border_color = PRIMARY_ACCENT
-	hover.accent_color = PRIMARY_ACCENT
-	hover.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	hover.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	hover.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	hover.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var pressed := ChamferedStyleBox.new()
-	pressed.fill_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.18)
-	pressed.border_color = PRIMARY_ACCENT
-	pressed.accent_color = PRIMARY_ACCENT
-	pressed.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	pressed.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	pressed.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	pressed.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
-
-
 func _ready() -> void:
 	back_button.pressed.connect(_go_back)
+	PressFeedback.attach(back_button)
 	for label in [xp_label, quests_label, streak_label, top_stat_label]:
 		label.add_theme_font_override("font", STAT_FONT)
 	stats_card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
-	_apply_chamfered_button_style(back_button)
+	NavButtonStyle.apply(back_button)
 	_refresh()
 
 
@@ -128,4 +92,4 @@ func _dates_for_week_containing(date_str: String) -> Array:
 
 
 func _go_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")

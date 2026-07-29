@@ -18,14 +18,14 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 120
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 48
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 200
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 84
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 42
 alignment = 0
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
@@ -37,7 +37,7 @@ horizontal_alignment = 1
 [node name="ReminderBanner" type="HBoxContainer" parent="Margin/Root"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 14
 
 [node name="ReminderLabel" type="Label" parent="Margin/Root/ReminderBanner"]
 layout_mode = 2
@@ -60,30 +60,30 @@ horizontal_alignment = 1
 layout_mode = 2
 
 [node name="NavSpacer" type="Control" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 
 [node name="QuestsButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 text = "Today's Quests"
 
 [node name="StatsButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 text = "Stats"
 
 [node name="TrainingLogButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 text = "Training Log"
 
 [node name="WeeklySummaryButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 text = "Weekly Summary"
 
 [node name="SettingsButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 124)
 layout_mode = 2
 text = "Settings"

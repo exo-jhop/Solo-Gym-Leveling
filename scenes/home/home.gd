@@ -39,7 +39,7 @@ const MONTH_NAMES := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "S
 @onready var low_energy_toggle: CheckBox = $Margin/ScrollContainer/Root/QuestsHeaderRow/LowEnergyToggle
 @onready var quest_list: VBoxContainer = $Margin/ScrollContainer/Root/QuestList
 @onready var stats_button: Button = $Margin/ScrollContainer/Root/ButtonRow/StatsButton
-@onready var lobby_button: Button = $LobbyButton
+@onready var lobby_button: Button = $Margin/ScrollContainer/Root/ButtonRow/BackButton
 
 # Set right before a completion-triggered rebuild so the freshly rebuilt card
 # for this quest can receive the glow pulse (cards are recreated from scratch
@@ -59,6 +59,9 @@ func _ready() -> void:
 	QuestManager.quests_generated.connect(_refresh_quests)
 	stats_button.pressed.connect(_on_stats_pressed)
 	lobby_button.pressed.connect(_on_lobby_pressed)
+	PressFeedback.attach(stats_button)
+	PressFeedback.attach(lobby_button)
+	NavButtonStyle.apply(lobby_button)
 	low_energy_toggle.toggled.connect(_on_low_energy_toggled)
 	reset_timer.timeout.connect(_refresh_reset_card)
 
@@ -133,6 +136,15 @@ func _refresh_quests() -> void:
 	low_energy_toggle.set_pressed_no_signal(QuestManager.low_energy_mode)
 	low_energy_toggle.disabled = QuestManager.any_lift_quest_completed()
 
+	var tween := create_tween()
+	tween.tween_property(quest_list, "modulate:a", 0.0, 0.1) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(_rebuild_quest_cards)
+	tween.tween_property(quest_list, "modulate:a", 1.0, 0.15) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func _rebuild_quest_cards() -> void:
 	for child in quest_list.get_children():
 		child.queue_free()
 
@@ -142,18 +154,19 @@ func _refresh_quests() -> void:
 		card.add_theme_stylebox_override("panel", card_style)
 
 		var card_margin := MarginContainer.new()
-		card_margin.add_theme_constant_override("margin_left", 12)
-		card_margin.add_theme_constant_override("margin_top", 10)
-		card_margin.add_theme_constant_override("margin_right", 12)
-		card_margin.add_theme_constant_override("margin_bottom", 10)
+		card_margin.add_theme_constant_override("margin_left", 24)
+		card_margin.add_theme_constant_override("margin_top", 20)
+		card_margin.add_theme_constant_override("margin_right", 24)
+		card_margin.add_theme_constant_override("margin_bottom", 20)
 		card.add_child(card_margin)
 
 		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
+		row.add_theme_constant_override("separation", 22)
 		card_margin.add_child(row)
 
 		var check := CheckBox.new()
 		check.text = ""
+		check.custom_minimum_size = Vector2(56, 56)
 		check.button_pressed = quest.completed
 		check.disabled = quest.completed
 		check.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -162,11 +175,11 @@ func _refresh_quests() -> void:
 
 		var info_box := VBoxContainer.new()
 		info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		info_box.add_theme_constant_override("separation", 2)
+		info_box.add_theme_constant_override("separation", 6)
 		row.add_child(info_box)
 
 		var name_row := HBoxContainer.new()
-		name_row.add_theme_constant_override("separation", 8)
+		name_row.add_theme_constant_override("separation", 14)
 		info_box.add_child(name_row)
 
 		var name_label := Label.new()
@@ -193,6 +206,7 @@ func _refresh_quests() -> void:
 		log_button.text = "LOG"
 		log_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		log_button.pressed.connect(_on_log_pressed.bind(quest))
+		PressFeedback.attach(log_button)
 		row.add_child(log_button)
 
 		quest_list.add_child(card)
@@ -208,24 +222,24 @@ func _build_stat_pill(stat_reward: String) -> PanelContainer:
 	var pill := PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.16)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
 	style.border_color = PRIMARY_ACCENT
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	style.content_margin_left = 6.0
-	style.content_margin_top = 1.0
-	style.content_margin_right = 6.0
-	style.content_margin_bottom = 1.0
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_right = 12
+	style.corner_radius_bottom_left = 12
+	style.content_margin_left = 12.0
+	style.content_margin_top = 3.0
+	style.content_margin_right = 12.0
+	style.content_margin_bottom = 3.0
 	pill.add_theme_stylebox_override("panel", style)
 
 	var label := Label.new()
 	label.theme_type_variation = &"AccentLabel"
-	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_font_size_override("font_size", 24)
 	label.text = "%s +%d" % [stat_reward, GameManager.STAT_INCREMENT]
 	pill.add_child(label)
 	return pill
@@ -248,7 +262,7 @@ func _pulse_card(style: ChamferedStyleBox) -> void:
 	tween.tween_method(func(w): _set_accent_width(style, w), base_width, base_width + 4.0, 0.18) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_method(func(w): _set_accent_width(style, w), base_width + 4.0, base_width, 0.35) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _set_accent_width(style: ChamferedStyleBox, width: float) -> void:
@@ -271,16 +285,16 @@ func _on_quest_toggled(pressed: bool, quest: Quest) -> void:
 
 
 func _on_stats_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/stats/stats.tscn")
+	SceneTransition.go_to_scene("res://scenes/stats/stats.tscn")
 
 
 func _on_lobby_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")
 
 
 func _on_log_pressed(quest: Quest) -> void:
 	QuestManager.selected_quest_id = quest.id
-	get_tree().change_scene_to_file("res://scenes/quest_detail/quest_detail.tscn")
+	SceneTransition.go_to_scene("res://scenes/quest_detail/quest_detail.tscn")
 
 
 ## Generic geometric avatar placeholder (no copyrighted character art per design
@@ -289,11 +303,23 @@ func _on_log_pressed(quest: Quest) -> void:
 class AvatarRing extends Control:
 	var ring_color: Color = Color.WHITE
 	var _pulse: float = 0.0
+	var _glow_tween: Tween
 
 	func _ready() -> void:
-		var tween := create_tween().set_loops()
-		tween.tween_method(_set_pulse, 0.0, 1.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_method(_set_pulse, 1.0, 0.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_start_glow_loop()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_APPLICATION_PAUSED:
+			if _glow_tween != null and _glow_tween.is_valid():
+				_glow_tween.pause()
+		elif what == NOTIFICATION_APPLICATION_RESUMED:
+			if _glow_tween != null and _glow_tween.is_valid():
+				_glow_tween.play()
+
+	func _start_glow_loop() -> void:
+		_glow_tween = create_tween().set_loops()
+		_glow_tween.tween_method(_set_pulse, 0.0, 1.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_glow_tween.tween_method(_set_pulse, 1.0, 0.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	func _set_pulse(value: float) -> void:
 		_pulse = value
@@ -303,11 +329,11 @@ class AvatarRing extends Control:
 		var center := size / 2.0
 		var r: float = min(size.x, size.y) / 2.0 - 4.0
 
-		var glow_radius := r + 3.0 + _pulse * 3.0
-		draw_arc(center, glow_radius, 0.0, TAU, 40, Color(ring_color.r, ring_color.g, ring_color.b, 0.2 + _pulse * 0.25), 5.0, true)
-		draw_arc(center, r, 0.0, TAU, 48, ring_color, 2.5, true)
+		var glow_radius := r + 5.0 + _pulse * 5.0
+		draw_arc(center, glow_radius, 0.0, TAU, 48, Color(ring_color.r, ring_color.g, ring_color.b, 0.2 + _pulse * 0.25), 8.0, true)
+		draw_arc(center, r, 0.0, TAU, 56, ring_color, 4.0, true)
 
-		draw_circle(center, r - 6.0, Color(0.0745098, 0.101961, 0.168627, 1))
+		draw_circle(center, r - 10.0, Color(0.0745098, 0.101961, 0.168627, 1))
 
 		var icon_color := Color(0.482353, 0.541176, 0.682353, 1)
 		draw_circle(center - Vector2(0.0, r * 0.32), r * 0.28, icon_color)
@@ -344,7 +370,7 @@ class RankHexBadge extends Control:
 
 		var border_points := points.duplicate()
 		border_points.append(points[0])
-		draw_polyline(border_points, rank_color, 2.5, true)
+		draw_polyline(border_points, rank_color, 4.0, true)
 
 		_label.text = rank_letter
 		_label.add_theme_color_override("font_color", rank_color)

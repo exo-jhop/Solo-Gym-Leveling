@@ -19,10 +19,10 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 56
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
@@ -30,24 +30,24 @@ layout_mode = 2
 [node name="Root" type="VBoxContainer" parent="Margin/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 36
 
 [node name="ProfileCard" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 
 [node name="ProfileMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ProfileCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
 
 [node name="ProfileRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 
 [node name="AvatarSlot" type="Control" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_vertical = 4
 
@@ -55,7 +55,7 @@ size_flags_vertical = 4
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_override_constants/separation = 4
+theme_override_constants/separation = 10
 
 [node name="TitleLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox"]
 layout_mode = 2
@@ -64,7 +64,7 @@ text = "NOVICE"
 
 [node name="StatsRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 18
 
 [node name="LevelLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow"]
 layout_mode = 2
@@ -77,14 +77,14 @@ size_flags_vertical = 4
 
 [node name="StreakMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 3
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
 
 [node name="StreakRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill/StreakMargin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="FlameLabel" type="Label" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow/InfoBox/StatsRow/StreakPill/StreakMargin/StreakRow"]
 layout_mode = 2
@@ -97,7 +97,7 @@ theme_type_variation = &"HeaderLabel"
 text = "0"
 
 [node name="RankHexSlot" type="Control" parent="Margin/ScrollContainer/Root/ProfileCard/ProfileMargin/ProfileRow"]
-custom_minimum_size = Vector2(52, 52)
+custom_minimum_size = Vector2(104, 104)
 layout_mode = 2
 size_flags_vertical = 4
 
@@ -106,10 +106,10 @@ layout_mode = 2
 
 [node name="ResetMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ResetCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 20
 
 [node name="ResetRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ResetCard/ResetMargin"]
 layout_mode = 2
@@ -137,14 +137,14 @@ layout_mode = 2
 
 [node name="XPMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/XPSection"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
 
 [node name="XPBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/XPSection/XPMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 14
 
 [node name="TitleLabel" type="Label" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox"]
 layout_mode = 2
@@ -152,7 +152,7 @@ theme_type_variation = &"SecondaryLabel"
 text = "EXPERIENCE"
 
 [node name="XPBarStack" type="Control" parent="Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox"]
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -171,7 +171,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="RadarChart" type="Control" parent="Margin/ScrollContainer/Root"]
-custom_minimum_size = Vector2(260, 260)
+custom_minimum_size = Vector2(480, 480)
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("3")
@@ -195,30 +195,22 @@ text = "LOW ENERGY"
 [node name="QuestList" type="VBoxContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 20
 
 [node name="HSeparator2" type="HSeparator" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 
 [node name="ButtonRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 24
 
 [node name="StatsButton" type="Button" parent="Margin/ScrollContainer/Root/ButtonRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "View Stats"
 
-[node name="LobbyButton" type="Button" parent="."]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -164.0
-offset_top = -76.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
+[node name="BackButton" type="Button" parent="Margin/ScrollContainer/Root/ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"FloatingButton"
 text = "Back to Lobby"

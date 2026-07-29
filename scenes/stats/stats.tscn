@@ -19,14 +19,14 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 44
+theme_override_constants/margin_top = 44
+theme_override_constants/margin_right = 44
+theme_override_constants/margin_bottom = 44
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 22
 
 [node name="HeaderLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
@@ -51,7 +51,7 @@ text = "XP 0 / 500 to next rank"
 layout_mode = 2
 
 [node name="RadarChart" type="Control" parent="Margin/Root"]
-custom_minimum_size = Vector2(380, 380)
+custom_minimum_size = Vector2(680, 680)
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("2")
@@ -62,14 +62,14 @@ layout_mode = 2
 
 [node name="StatBreakdownMargin" type="MarginContainer" parent="Margin/Root/StatBreakdownPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 18
 
 [node name="StatBreakdownBox" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 12
 
 [node name="StatBreakdownHeader" type="Label" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
 layout_mode = 2
@@ -78,7 +78,7 @@ text = "STR this week"
 
 [node name="StatBreakdownList" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="PRSeparator" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
@@ -95,18 +95,10 @@ size_flags_vertical = 3
 [node name="PRList" type="VBoxContainer" parent="Margin/Root/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 18
 
-[node name="BackButton" type="Button" parent="."]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -164.0
-offset_top = -76.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
+[node name="BackButton" type="Button" parent="Margin/Root"]
+layout_mode = 2
+size_flags_horizontal = 4
 theme_type_variation = &"FloatingButton"
-text = "Back"
+text = "Back to Lobby"

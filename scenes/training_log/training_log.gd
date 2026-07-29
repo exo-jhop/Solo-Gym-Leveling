@@ -15,7 +15,6 @@ const DAYS_IN_MONTH := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
 const DIVIDER_COLOR := Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C
-const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "bottom": 10.0}
 
 @onready var month_label: Label = $Margin/Root/HeaderRow/MonthLabel
 @onready var prev_button: Button = $Margin/Root/HeaderRow/PrevButton
@@ -26,45 +25,12 @@ const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "botto
 @onready var detail_title_label: Label = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailTitleLabel
 @onready var detail_summary_label: Label = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailSummaryLabel
 @onready var detail_quest_list: VBoxContainer = $Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailScroll/DetailQuestList
-@onready var back_button: Button = $BackButton
+@onready var back_button: Button = $Margin/Root/BackButton
 
 var _view_year: int
 var _view_month: int  # 1-12
 var _today_str: String
 var _selected_date: String = ""
-
-
-# Same chamfered nav-button treatment as lobby.gd's helper of the same name.
-func _apply_chamfered_button_style(button: Button) -> void:
-	var normal := ChamferedStyleBox.new()
-	normal.border_color = DIVIDER_COLOR
-	normal.accent_color = PRIMARY_ACCENT
-	normal.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	normal.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	normal.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	normal.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var hover := ChamferedStyleBox.new()
-	hover.border_color = PRIMARY_ACCENT
-	hover.accent_color = PRIMARY_ACCENT
-	hover.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	hover.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	hover.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	hover.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var pressed := ChamferedStyleBox.new()
-	pressed.fill_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.18)
-	pressed.border_color = PRIMARY_ACCENT
-	pressed.accent_color = PRIMARY_ACCENT
-	pressed.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	pressed.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	pressed.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	pressed.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
 
 
 func _ready() -> void:
@@ -83,10 +49,13 @@ func _ready() -> void:
 	prev_button.pressed.connect(_on_prev_month)
 	next_button.pressed.connect(_on_next_month)
 	back_button.pressed.connect(_go_back)
+	PressFeedback.attach(prev_button)
+	PressFeedback.attach(next_button)
+	PressFeedback.attach(back_button)
 	detail_summary_label.add_theme_font_override("font", STAT_FONT)
 
 	detail_card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
-	_apply_chamfered_button_style(back_button)
+	NavButtonStyle.apply(back_button)
 
 	_refresh_calendar()
 	_select_date(_today_str)
@@ -129,7 +98,7 @@ func _refresh_calendar() -> void:
 		var cell := Button.new()
 		cell.text = str(day)
 		cell.toggle_mode = true
-		cell.custom_minimum_size = Vector2(0, 40)
+		cell.custom_minimum_size = Vector2(0, 76)
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.button_pressed = (date_str == _selected_date)
 		_style_cell(cell, has_data, ratio, date_str == _today_str, date_str == _selected_date, is_missed)
@@ -139,6 +108,7 @@ func _refresh_calendar() -> void:
 		else:
 			cell.disabled = true
 
+		PressFeedback.attach(cell)
 		calendar_grid.add_child(cell)
 
 
@@ -301,4 +271,4 @@ func _format_number(value: float) -> String:
 
 
 func _go_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")

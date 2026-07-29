@@ -24,18 +24,21 @@ ProfileManager="*res://scripts/autoload/profile_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 NotificationManager="*res://scripts/autoload/notification_manager.gd"
 SystemPopup="*res://scenes/system_popup/system_popup.tscn"
+SceneTransition="*res://scenes/scene_transition/scene_transition.tscn"
 
 [display]
 
 window/size/viewport_width=1080
 window/size/viewport_height=2400
+window/size/window_width_override=540
+window/size/window_height_override=1200
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation="portrait"
 
 [gui]
 
-theme/custom="res://resources/theme/hunter_theme.tres"
+theme/custom="res://themes/system_theme.tres"
 
 [rendering]
 

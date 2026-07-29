@@ -19,54 +19,16 @@ extends Control
 @onready var regenerate_confirm: ConfirmationDialog = $RegenerateConfirm
 @onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var save_button: Button = $Margin/Root/ButtonRow/SaveButton
-@onready var back_button: Button = $BackButton
+@onready var back_button: Button = $Margin/Root/ButtonRow/BackButton
 @onready var profile_card: PanelContainer = $Margin/Root/Scroll/Content/ProfileCard
 @onready var nutrition_card: PanelContainer = $Margin/Root/Scroll/Content/NutritionCard
 @onready var notification_card: PanelContainer = $Margin/Root/Scroll/Content/NotificationCard
 
-const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
-const DIVIDER_COLOR := Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C
-const BUTTON_CONTENT_MARGIN := {"left": 16.0, "top": 10.0, "right": 16.0, "bottom": 10.0}
-
-
-# Same chamfered nav-button treatment as lobby.gd's helper of the same name.
-func _apply_chamfered_button_style(button: Button) -> void:
-	var normal := ChamferedStyleBox.new()
-	normal.border_color = DIVIDER_COLOR
-	normal.accent_color = PRIMARY_ACCENT
-	normal.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	normal.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	normal.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	normal.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var hover := ChamferedStyleBox.new()
-	hover.border_color = PRIMARY_ACCENT
-	hover.accent_color = PRIMARY_ACCENT
-	hover.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	hover.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	hover.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	hover.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	var pressed := ChamferedStyleBox.new()
-	pressed.fill_color = Color(PRIMARY_ACCENT.r, PRIMARY_ACCENT.g, PRIMARY_ACCENT.b, 0.18)
-	pressed.border_color = PRIMARY_ACCENT
-	pressed.accent_color = PRIMARY_ACCENT
-	pressed.content_margin_left = BUTTON_CONTENT_MARGIN.left
-	pressed.content_margin_top = BUTTON_CONTENT_MARGIN.top
-	pressed.content_margin_right = BUTTON_CONTENT_MARGIN.right
-	pressed.content_margin_bottom = BUTTON_CONTENT_MARGIN.bottom
-
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
-
-
 func _ready() -> void:
 	for card in [profile_card, nutrition_card, notification_card]:
 		card.add_theme_stylebox_override("panel", ChamferedStyleBox.new())
-	_apply_chamfered_button_style(save_button)
-	_apply_chamfered_button_style(back_button)
+	NavButtonStyle.apply(save_button)
+	NavButtonStyle.apply(back_button)
 	for goal in ProfileManager.GOALS:
 		goal_input.add_item(ProfileManager.GOAL_LABELS[goal])
 	goal_input.selected = ProfileManager.GOALS.find(ProfileManager.profile.goal)
@@ -87,6 +49,9 @@ func _ready() -> void:
 	creatine_input.value_changed.connect(_on_creatine_changed)
 	save_button.pressed.connect(_on_save_pressed)
 	back_button.pressed.connect(_go_back)
+	PressFeedback.attach(save_button)
+	PressFeedback.attach(back_button)
+	PressFeedback.attach(regenerate_button)
 
 	regenerate_button.pressed.connect(_on_regenerate_pressed)
 	regenerate_confirm.confirmed.connect(_on_regenerate_confirmed)
@@ -168,7 +133,7 @@ func _refresh_reminders() -> void:
 
 func _build_reminder_row(category: String) -> Control:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 14)
 
 	var enabled_check := CheckBox.new()
 	enabled_check.text = REMINDER_LABELS.get(category, category.capitalize())
@@ -182,7 +147,7 @@ func _build_reminder_row(category: String) -> Control:
 	hour_input.max_value = 23
 	hour_input.step = 1
 	hour_input.value = NotificationManager.reminder_hours.get(category, 20)
-	hour_input.custom_minimum_size = Vector2(70, 0)
+	hour_input.custom_minimum_size = Vector2(120, 0)
 	hour_input.value_changed.connect(func(value: float): NotificationManager.reminder_hours[category] = int(value))
 	row.add_child(hour_input)
 
@@ -200,7 +165,7 @@ func _refresh_program() -> void:
 
 func _build_day_section(day_index: int, day: TrainingDay) -> Control:
 	var section := VBoxContainer.new()
-	section.add_theme_constant_override("separation", 4)
+	section.add_theme_constant_override("separation", 8)
 
 	var header := Label.new()
 	header.text = "Day %d — %s" % [day_index + 1, day.day_name] + ("  (Rest)" if day.is_rest_day else "")
@@ -215,6 +180,7 @@ func _build_day_section(day_index: int, day: TrainingDay) -> Control:
 	var add_button := Button.new()
 	add_button.text = "+ Add Exercise"
 	add_button.pressed.connect(_on_add_exercise.bind(day))
+	PressFeedback.attach(add_button)
 	section.add_child(add_button)
 
 	var separator := HSeparator.new()
@@ -226,7 +192,7 @@ func _build_day_section(day_index: int, day: TrainingDay) -> Control:
 func _build_exercise_row(day: TrainingDay, exercise_index: int) -> Control:
 	var exercise: Exercise = day.exercises[exercise_index]
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
+	row.add_theme_constant_override("separation", 10)
 
 	var name_input := LineEdit.new()
 	name_input.text = exercise.name
@@ -240,14 +206,14 @@ func _build_exercise_row(day: TrainingDay, exercise_index: int) -> Control:
 	sets_input.max_value = 10
 	sets_input.step = 1
 	sets_input.value = exercise.sets
-	sets_input.custom_minimum_size = Vector2(70, 0)
+	sets_input.custom_minimum_size = Vector2(120, 0)
 	sets_input.value_changed.connect(func(new_value: float): exercise.sets = int(new_value))
 	row.add_child(sets_input)
 
 	var reps_input := LineEdit.new()
 	reps_input.text = exercise.rep_range
 	reps_input.placeholder_text = "reps"
-	reps_input.custom_minimum_size = Vector2(60, 0)
+	reps_input.custom_minimum_size = Vector2(100, 0)
 	reps_input.text_changed.connect(func(new_text: String): exercise.rep_range = new_text)
 	row.add_child(reps_input)
 
@@ -256,11 +222,13 @@ func _build_exercise_row(day: TrainingDay, exercise_index: int) -> Control:
 	swap_button.text = "Swap"
 	swap_button.disabled = alternatives.is_empty()
 	swap_button.pressed.connect(_on_swap_exercise.bind(exercise, alternatives, swap_button))
+	PressFeedback.attach(swap_button)
 	row.add_child(swap_button)
 
 	var remove_button := Button.new()
 	remove_button.text = "X"
 	remove_button.pressed.connect(_on_remove_exercise.bind(day, exercise_index))
+	PressFeedback.attach(remove_button)
 	row.add_child(remove_button)
 
 	return row
@@ -278,7 +246,7 @@ func _on_swap_exercise(exercise: Exercise, alternatives: Array[String], anchor: 
 	)
 	popup.popup_hide.connect(popup.queue_free)
 	add_child(popup)
-	popup.popup(Rect2(anchor.global_position, Vector2(220, 0)))
+	popup.popup(Rect2(anchor.global_position, Vector2(380, 0)))
 
 
 func _on_add_exercise(day: TrainingDay) -> void:
@@ -303,4 +271,4 @@ func _on_save_pressed() -> void:
 
 
 func _go_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")

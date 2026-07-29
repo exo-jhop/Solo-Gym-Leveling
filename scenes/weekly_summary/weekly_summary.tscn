@@ -18,14 +18,14 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 40
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
@@ -41,14 +41,14 @@ layout_mode = 2
 
 [node name="StatsCardMargin" type="MarginContainer" parent="Margin/Root/StatsCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 22
 
 [node name="StatsBox" type="VBoxContainer" parent="Margin/Root/StatsCard/StatsCardMargin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 22
 
 [node name="XpLabel" type="Label" parent="Margin/Root/StatsCard/StatsCardMargin/StatsBox"]
 layout_mode = 2
@@ -67,6 +67,7 @@ layout_mode = 2
 text = "Top stat this week: —"
 
 [node name="BackButton" type="Button" parent="Margin/Root"]
-custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"FloatingButton"
 text = "Back to Lobby"

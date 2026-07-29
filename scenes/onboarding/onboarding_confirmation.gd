@@ -14,6 +14,7 @@ func _ready() -> void:
 	var direction_text: String = ProfileManager.CALORIE_DIRECTION_LABELS[profile.calorie_direction()]
 	summary_label.text = "Calculated protein target: %dg/day\n%s\n\nThese feed into your daily quests — you can revisit them anytime in Settings > Profile." % [int(protein), direction_text]
 	finish_button.pressed.connect(_on_finish_pressed)
+	PressFeedback.attach(finish_button)
 
 
 func _on_finish_pressed() -> void:
@@ -22,4 +23,4 @@ func _on_finish_pressed() -> void:
 	QuestManager.training_cycle = ProgramGenerator.generate_program(profile.days_per_week, profile.goal, profile.equipment_access)
 	ProfileManager.apply_targets()
 	SaveManager.save_game()
-	get_tree().change_scene_to_file("res://scenes/lobby/lobby.tscn")
+	SceneTransition.go_to_scene("res://scenes/lobby/lobby.tscn")

@@ -18,14 +18,14 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 28
 
 [node name="TitleLabel" type="Label" parent="Margin/Root"]
 layout_mode = 2
@@ -35,7 +35,7 @@ horizontal_alignment = 1
 
 [node name="HeaderRow" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 20
 
 [node name="PrevButton" type="Button" parent="Margin/Root/HeaderRow"]
 layout_mode = 2
@@ -53,12 +53,12 @@ text = ">"
 
 [node name="WeekdayRow" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
 [node name="CalendarGrid" type="GridContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/h_separation = 4
-theme_override_constants/v_separation = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 columns = 7
 
 [node name="HSeparator" type="HSeparator" parent="Margin/Root"]
@@ -70,15 +70,15 @@ size_flags_vertical = 3
 
 [node name="DetailCardMargin" type="MarginContainer" parent="Margin/Root/DetailCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 22
 
 [node name="DetailPanel" type="VBoxContainer" parent="Margin/Root/DetailCard/DetailCardMargin"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 11
 
 [node name="DetailTitleLabel" type="Label" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel"]
 layout_mode = 2
@@ -97,18 +97,10 @@ size_flags_vertical = 3
 [node name="DetailQuestList" type="VBoxContainer" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 8
 
-[node name="BackButton" type="Button" parent="."]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -164.0
-offset_top = -76.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
+[node name="BackButton" type="Button" parent="Margin/Root"]
+layout_mode = 2
+size_flags_horizontal = 4
 theme_type_variation = &"FloatingButton"
 text = "Back to Lobby"

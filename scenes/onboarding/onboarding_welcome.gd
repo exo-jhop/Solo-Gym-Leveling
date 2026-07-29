@@ -7,7 +7,8 @@ extends Control
 
 func _ready() -> void:
 	begin_button.pressed.connect(_on_begin_pressed)
+	PressFeedback.attach(begin_button)
 
 
 func _on_begin_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/onboarding/onboarding_goal.tscn")
+	SceneTransition.go_to_scene("res://scenes/onboarding/onboarding_goal.tscn")

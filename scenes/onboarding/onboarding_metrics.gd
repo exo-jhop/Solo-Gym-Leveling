@@ -19,6 +19,7 @@ func _ready() -> void:
 	equipment_input.selected = ProfileManager.EQUIPMENT_OPTIONS.find(ProfileManager.profile.equipment_access)
 
 	continue_button.pressed.connect(_on_continue_pressed)
+	PressFeedback.attach(continue_button)
 
 
 func _on_continue_pressed() -> void:
@@ -29,4 +30,4 @@ func _on_continue_pressed() -> void:
 	ProfileManager.profile.weight_kg = weight_input.value
 	ProfileManager.profile.days_per_week = int(days_input.value)
 	ProfileManager.profile.equipment_access = ProfileManager.EQUIPMENT_OPTIONS[equipment_input.selected]
-	get_tree().change_scene_to_file("res://scenes/onboarding/onboarding_confirmation.tscn")
+	SceneTransition.go_to_scene("res://scenes/onboarding/onboarding_confirmation.tscn")

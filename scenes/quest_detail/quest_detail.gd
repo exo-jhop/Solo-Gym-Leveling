@@ -21,6 +21,9 @@ func _ready() -> void:
 	quest = QuestManager.get_quest(QuestManager.selected_quest_id)
 	complete_button.pressed.connect(_on_complete_pressed)
 	back_button.pressed.connect(_go_back)
+	PressFeedback.attach(complete_button)
+	PressFeedback.attach(back_button)
+	NavButtonStyle.apply(back_button)
 	target_label.add_theme_font_override("font", STAT_FONT)
 
 	if quest == null:
@@ -65,7 +68,7 @@ func _on_complete_pressed() -> void:
 
 
 func _go_back() -> void:
-	get_tree().change_scene_to_file("res://scenes/home/home.tscn")
+	SceneTransition.go_to_scene("res://scenes/home/home.tscn")
 
 
 func _format_number(value: float) -> String:

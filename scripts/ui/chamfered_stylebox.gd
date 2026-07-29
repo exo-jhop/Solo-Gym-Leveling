@@ -12,9 +12,9 @@ extends StyleBox
 @export var fill_color: Color = Color(0.0745098, 0.101961, 0.168627, 1.0)  # #131A2B surface
 @export var border_color: Color = Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C divider
 @export var accent_color: Color = Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF default; pass per card category (gold, success, ...)
-@export var chamfer_size: float = 18.0
-@export var border_width: float = 1.0
-@export var accent_width: float = 3.5
+@export var chamfer_size: float = 30.0
+@export var border_width: float = 1.5
+@export var accent_width: float = 5.0
 
 # Content margins: use the content_margin_left/top/right/bottom properties StyleBox
 # already provides natively (default 0) — do NOT redeclare them, StyleBox's default
