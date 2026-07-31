@@ -274,8 +274,10 @@ func _quest_text(text: String, completed: bool, variation: StringName = &"") -> 
 	rich.scroll_active = false
 	rich.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rich.add_theme_color_override("default_color", SECONDARY_TEXT)
+	# RichTextLabel ignores theme_type_variation, so the SecondaryLabel size (30) has to be
+	# mirrored by hand here or a completed secondary line shrinks next to its live version.
 	if variation != &"":
-		rich.add_theme_font_size_override("normal_font_size", 14)
+		rich.add_theme_font_size_override("normal_font_size", 30)
 	return rich
 
 
@@ -326,21 +328,26 @@ func _check_all_quests_complete() -> void:
 ## Lightweight banner (per design system v2: routine completion is a toast,
 ## the Level-up/Rank-up SystemPopup is reserved for those milestones only).
 func _show_all_complete_toast() -> void:
+	# Centering is delegated to a full-rect CenterContainer rather than PRESET_CENTER +
+	# manual offsets: the panel's real size only exists after the label has been laid out,
+	# so offset math run at build time centers against a zero size and the toast lands
+	# off to the right.
+	var centerer := CenterContainer.new()
+	centerer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	centerer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	centerer.modulate.a = 0.0
+	add_child(centerer)
+
 	var toast := PanelContainer.new()
 	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	toast.add_theme_stylebox_override("panel", _make_chamfered_style(SUCCESS_COLOR))
-	toast.set_anchors_preset(Control.PRESET_CENTER)
-	toast.offset_top = -40.0
-	toast.offset_bottom = 40.0
-	toast.pivot_offset = Vector2(toast.size.x / 2.0, toast.size.y / 2.0)
-	toast.modulate.a = 0.0
-	add_child(toast)
+	centerer.add_child(toast)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 28)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 28)
-	margin.add_theme_constant_override("margin_bottom", 16)
+	margin.add_theme_constant_override("margin_left", 56)
+	margin.add_theme_constant_override("margin_top", 44)
+	margin.add_theme_constant_override("margin_right", 56)
+	margin.add_theme_constant_override("margin_bottom", 44)
 	toast.add_child(margin)
 
 	var label := Label.new()
@@ -348,19 +355,14 @@ func _show_all_complete_toast() -> void:
 	label.theme_type_variation = &"AccentLabel"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	label.custom_minimum_size = Vector2(260, 0)
+	label.custom_minimum_size = Vector2(620, 0)
 	margin.add_child(label)
 
-	# Re-center now that the label has given the panel its actual size.
-	await get_tree().process_frame
-	toast.offset_left = -toast.size.x / 2.0
-	toast.offset_right = toast.size.x / 2.0
-
 	var tween := create_tween()
-	tween.tween_property(toast, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(centerer, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_interval(2.5)
-	tween.tween_property(toast, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_callback(toast.queue_free)
+	tween.tween_property(centerer, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(centerer.queue_free)
 
 
 func _on_stats_pressed() -> void:

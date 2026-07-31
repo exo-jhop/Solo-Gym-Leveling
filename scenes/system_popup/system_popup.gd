@@ -3,6 +3,12 @@ extends CanvasLayer
 ## Global "System" style overlay for level-up / rank-up notifications (spec 4.6 / 5).
 ## Registered as an autoload scene so it renders above whatever screen is active
 ## and keeps working regardless of which scene triggered the underlying quest completion.
+##
+## Panel width and font sizes in the .tscn are authored against the 1080x2400 viewport
+## (project.godot) and system_theme.tres's scale (body 32 / HeaderLabel 50) — keep new
+## text in that range rather than the 12-18px desktop values, or the popup reads as a
+## tiny box in the middle of a phone screen. ValueLabel autowraps because the NEW PR!
+## variant renders "<exercise name>: <record>", far longer than "Level 12".
 
 const DISPLAY_SECONDS := 2.0
 const FADE_SECONDS := 0.25
