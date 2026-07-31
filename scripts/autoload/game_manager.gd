@@ -31,6 +31,23 @@ const RANK_XP_THRESHOLDS := {
 	"S": 12000,
 }
 
+# Avatar physique tier per rank, for the Lobby character panel. Cosmetic only, and
+# keyed on rank rather than level so the upgrade lands on the existing rank-up popup
+# moment instead of drifting past unnoticed mid-session. Early tiers change clothing
+# (loose tee -> fitted -> sleeveless -> compression) so the body progression stays
+# plausible; the aura render is held back for S to match Monarch being the rare tier.
+# res/img holds seven renders for six ranks — lvl5 is the unused spare, and there is
+# no lvl7. Don't preload these: each is a ~4 MB lossless texture, and the Lobby only
+# ever needs the current rank's (see lobby.gd _refresh_avatar).
+const RANK_AVATARS := {
+	"E": "res://res/img/lvl1.png",
+	"D": "res://res/img/lvl2.png",
+	"C": "res://res/img/lvl3.png",
+	"B": "res://res/img/lvl4.png",
+	"A": "res://res/img/lvl6.png",
+	"S": "res://res/img/lvl8.png",
+}
+
 # Small per-completion stat bump. Placeholder, tune later (see spec 2.1).
 const STAT_INCREMENT := 1
 
@@ -116,6 +133,11 @@ func current_rank_threshold() -> int:
 ## Badge color for a rank letter, for UI display (spec 5).
 func rank_color(rank: String) -> Color:
 	return RANK_COLORS.get(rank, Color.WHITE)
+
+
+## Avatar texture path for a rank letter, for the Lobby character panel.
+func rank_avatar_path(rank: String) -> String:
+	return RANK_AVATARS.get(rank, RANK_AVATARS["E"])
 
 
 ## Fills in current_title for saves created/loaded before Milestone Titles existed,
