@@ -238,14 +238,14 @@ func _style_cell(cell: Button, has_data: bool, ratio: float, is_today: bool, is_
 	cell.add_theme_color_override("font_hover_color", font_color)
 	cell.add_theme_color_override("font_pressed_color", font_color)
 
-	# Every cell now carries the chamfered shape (the design system makes it mandatory) at a
-	# small chamfer, and today/selected differ by accent rather than by changing shape —
-	# which is what the previous plain-StyleBoxFlat-vs-chamfered split did, so the grid
-	# visibly reflowed as the selection moved.
+	# Repeated list-item container: no chamfer cut (reserved for single feature cards, not
+	# a cell that repeats 30+ times a grid) — today/selected differ by border color/width
+	# instead, which is what the previous plain-StyleBoxFlat-vs-chamfered split did, so the
+	# grid visibly reflowed as the selection moved.
 	var style := ChamferedStyleBox.new()
 	style.fill_color = color
 	style.border_color = SystemPalette.DIVIDER
-	style.chamfer_size = 10.0
+	style.chamfer_size = 0.0
 	style.border_width = 1.0
 	style.accent_width = 0.0
 	style.shadow_size = 0.0

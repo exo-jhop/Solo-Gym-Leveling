@@ -270,7 +270,11 @@ func _build_pr_row(exercise_name: String, metric: String) -> PanelContainer:
 	var card := PanelContainer.new()
 	# Gold accent: PRs are achievement cards, the category the design system assigns
 	# #FFB800 to (the same accent the Lobby's streak pill uses).
-	card.add_theme_stylebox_override("panel", HudCard.row_style(SystemPalette.GOLD, HudCard.ROW_MARGIN, false))
+	var card_style := HudCard.row_style(SystemPalette.GOLD, HudCard.ROW_MARGIN, false)
+	# Repeated list row: no chamfer cut (reserved for single feature cards, not a
+	# container that repeats down a list).
+	card_style.chamfer_size = 0.0
+	card.add_theme_stylebox_override("panel", card_style)
 
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)

@@ -357,7 +357,11 @@ func _build_exercise_row(day: TrainingDay, exercise_index: int) -> Control:
 	var exercise: Exercise = day.exercises[exercise_index]
 
 	var card := PanelContainer.new()
-	card.add_theme_stylebox_override("panel", HudCard.row_style(SystemPalette.PRIMARY))
+	var card_style := HudCard.row_style(SystemPalette.PRIMARY)
+	# Repeated list row: no chamfer cut (reserved for single feature cards, not a
+	# container that repeats down a list).
+	card_style.chamfer_size = 0.0
+	card.add_theme_stylebox_override("panel", card_style)
 
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 12)

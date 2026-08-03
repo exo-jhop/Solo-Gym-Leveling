@@ -39,8 +39,8 @@ const MONTH_NAMES := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "S
 @onready var low_energy_toggle: CheckBox = $Margin/ScrollContainer/Root/QuestsHeaderRow/LowEnergyToggle
 @onready var recovery_label: Label = $Margin/ScrollContainer/Root/RecoveryLabel
 @onready var quest_list: VBoxContainer = $Margin/ScrollContainer/Root/QuestList
-@onready var stats_button: Button = $Margin/ScrollContainer/Root/ButtonRow/StatsButton
-@onready var lobby_button: Button = $Margin/ScrollContainer/Root/ButtonRow/BackButton
+@onready var stats_button: Button = $FooterAnchor/FooterBar/FooterMargin/ButtonRow/StatsButton
+@onready var lobby_button: Button = $FooterAnchor/FooterBar/FooterMargin/ButtonRow/BackButton
 
 # Set right before a completion-triggered rebuild so the freshly rebuilt card
 # for this quest can receive the glow pulse (cards are recreated from scratch
@@ -161,6 +161,13 @@ func _rebuild_quest_cards() -> void:
 	for quest in QuestManager.current_quests:
 		var card := PanelContainer.new()
 		var card_style := _make_chamfered_style(SUCCESS_COLOR if quest.completed else PRIMARY_ACCENT)
+		# Repeated list rows drop the chamfer cut and the diagonal accent trace riding along
+		# it (design system: diagonal corners are reserved for single feature cards, not a
+		# container that repeats down a list) — the state color reads through a full border
+		# instead so active/completed quests still look different at a glance.
+		card_style.chamfer_size = 0.0
+		card_style.border_color = card_style.accent_color
+		card_style.border_width = 2.0
 		card.add_theme_stylebox_override("panel", card_style)
 		if quest.completed:
 			card.modulate.a = 0.55
@@ -289,17 +296,19 @@ func _quest_text(text: String, completed: bool, variation: StringName = &"") -> 
 	return rich
 
 
+## Quest cards have no chamfer to trace an accent glow along (see _rebuild_quest_cards),
+## so the completion pulse instead flashes the border that now carries the state color.
 func _pulse_card(style: ChamferedStyleBox) -> void:
-	var base_width := style.accent_width
+	var base_width := style.border_width
 	var tween := create_tween()
-	tween.tween_method(func(w): _set_accent_width(style, w), base_width, base_width + 4.0, 0.18) \
+	tween.tween_method(func(w): _set_border_width(style, w), base_width, base_width + 3.0, 0.18) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_method(func(w): _set_accent_width(style, w), base_width + 4.0, base_width, 0.35) \
+	tween.tween_method(func(w): _set_border_width(style, w), base_width + 3.0, base_width, 0.35) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
-func _set_accent_width(style: ChamferedStyleBox, width: float) -> void:
-	style.accent_width = width
+func _set_border_width(style: ChamferedStyleBox, width: float) -> void:
+	style.border_width = width
 	style.emit_changed()
 
 
