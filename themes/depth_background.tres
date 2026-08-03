@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cq8w2vx4h1n6d"]
+
+[ext_resource type="Shader" path="res://scripts/ui/depth_background.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")

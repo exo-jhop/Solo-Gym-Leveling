@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://b5j2n8q1w6r4t"]
+[gd_scene load_steps=6 format=3 uid="uid://b5j2n8q1w6r4t"]
 
 [ext_resource type="Script" path="res://scenes/lobby/lobby.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="3"]
 [ext_resource type="AudioStream" path="res://res/sfx/system-notification.mp3" id="4"]
 [ext_resource type="Texture2D" path="res://res/img/lvl1.png" id="5"]
+[ext_resource type="Material" path="res://themes/depth_background.tres" id="6"]
 
 [node name="Lobby" type="Control"]
 anchor_right = 1.0
@@ -15,6 +16,7 @@ script = ExtResource("1")
 stream = ExtResource("4")
 
 [node name="Background" type="ColorRect" parent="."]
+material = ExtResource("6")
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -50,6 +52,7 @@ size_flags_horizontal = 3
 theme_type_variation = &"SecondaryLabel"
 text = "Today's quests are still open."
 autowrap_mode = 2
+vertical_alignment = 1
 
 [node name="DismissButton" type="Button" parent="Margin/Root/ReminderBanner"]
 layout_mode = 2

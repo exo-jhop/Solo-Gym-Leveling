@@ -16,6 +16,9 @@ const ACCENT_COLOR := Color(0.0, 0.85098, 1.0, 1.0)
 const SUCCESS_COLOR := Color(0.227451, 0.858824, 0.462745, 1.0)
 const WARNING_COLOR := Color(1.0, 0.419608, 0.207843, 1.0)
 
+const PRIMARY_ACCENT := Color(0.0, 0.721569, 1.0, 1.0)  # #00B8FF (design system v2)
+const GOLD_ACCENT := Color(1.0, 0.721569, 0.0, 1.0)  # #FFB800 (design system v2 streak/achievement)
+
 # "Session" = a calendar day with at least one completed lift quest (any exercise) —
 # the closest proxy to "workout ago" the existing data supports, since PRTracker only
 # logs new-best moments, not every non-PR completion. Trending up if the exercise's
@@ -40,7 +43,20 @@ func _ready() -> void:
 	back_button.pressed.connect(_go_back)
 	PressFeedback.attach(back_button)
 	NavButtonStyle.apply(back_button)
+	breakdown_panel.add_theme_stylebox_override("panel", _make_chamfered_style(PRIMARY_ACCENT))
 	_refresh()
+
+
+## This screen's cards were still falling through to the theme's rounded-rect
+## StyleBoxFlat, which the design system explicitly lists as an anti-pattern
+## (chamfered corners are mandatory on every card) and which also skipped the
+## ChamferedStyleBox depth treatment every other screen gets. Same helper shape as
+## home.gd's, kept local rather than shared because the two screens pass different
+## per-category accents and there is no third caller yet.
+func _make_chamfered_style(accent: Color) -> ChamferedStyleBox:
+	var style := ChamferedStyleBox.new()
+	style.accent_color = accent
+	return style
 
 
 func _refresh() -> void:
@@ -140,6 +156,18 @@ func _build_pr_row(exercise_name: String) -> PanelContainer:
 	var record: Dictionary = PRTracker.personal_records[exercise_name]
 
 	var card := PanelContainer.new()
+	# Gold accent: PRs are achievement cards, which is the category the design system
+	# assigns #FFB800 to (the same accent the streak pill on Home uses). Toned down from
+	# the hero-card defaults — this is a long list, and a full-strength bloom repeated
+	# down every row competes with the content instead of framing it.
+	var pr_style := _make_chamfered_style(GOLD_ACCENT)
+	pr_style.chamfer_size = 18.0
+	pr_style.accent_width = 3.0
+	pr_style.glow_strength = 0.22
+	pr_style.shadow_size = 8.0
+	pr_style.shadow_offset = Vector2(0.0, 4.0)
+	card.add_theme_stylebox_override("panel", pr_style)
+
 	var card_margin := MarginContainer.new()
 	card_margin.add_theme_constant_override("margin_left", 12)
 	card_margin.add_theme_constant_override("margin_top", 8)
