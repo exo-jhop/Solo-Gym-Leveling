@@ -26,6 +26,9 @@ func _ready() -> void:
 	_print_stats()
 	_print_quests()
 
+	print("\n--- LoadAdjuster decision table ---")
+	_test_load_adjuster()
+
 	print("\n--- Done ---")
 	get_tree().quit()
 
@@ -37,6 +40,32 @@ func _print_stats() -> void:
 		stats.str_stat, stats.vit_stat, stats.agi_stat, stats.int_stat, stats.sense_stat,
 		stats.current_streak, stats.streak_freezes_available,
 	])
+
+
+## Pure-function cases from the v5 spec's test plan (section 6) — LoadAdjuster.evaluate()
+## takes plain values in, so these need no HistoryManager/save-file setup at all.
+func _test_load_adjuster() -> void:
+	_check_load_adjustment_case("missed=2 -> recovery_week",
+		{"missed_lift_sessions": 2}, "recovery_week")
+	_check_load_adjustment_case("missed=1 -> no suggestion",
+		{"missed_lift_sessions": 1}, "")
+	_check_load_adjustment_case("missed=2 and reduced=5 -> recovery_week wins",
+		{"missed_lift_sessions": 2, "reduced_days": 5}, "recovery_week")
+	_check_load_adjustment_case("reduced=3, no missed -> reduce_volume",
+		{"reduced_days": 3}, "reduce_volume")
+	_check_load_adjustment_case("rate=1.0, seen=8, reduced=0 -> ready_to_progress",
+		{"lift_completion_rate": 1.0, "training_days_seen": 8}, "ready_to_progress")
+	_check_load_adjustment_case("rate=1.0, seen=3 -> no suggestion (insufficient history)",
+		{"lift_completion_rate": 1.0, "training_days_seen": 3}, "")
+	_check_load_adjustment_case("rate=1.0, reduced=2 -> no suggestion (reductions disqualify progression)",
+		{"lift_completion_rate": 1.0, "reduced_days": 2, "training_days_seen": 8}, "")
+
+
+func _check_load_adjustment_case(label: String, signals: Dictionary, expected_kind: String) -> void:
+	var suggestion := LoadAdjuster.evaluate(signals)
+	var actual_kind: String = suggestion.get("kind", "")
+	var passed := actual_kind == expected_kind
+	print("  [%s] %s (got %s)" % ["PASS" if passed else "FAIL", label, actual_kind if actual_kind != "" else "{}"])
 
 
 func _print_quests() -> void:
