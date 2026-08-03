@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxk3n9q8m1w7p"]
+[gd_scene load_steps=6 format=3 uid="uid://dxk3n9q8m1w7p"]
 
 [ext_resource type="Script" path="res://scenes/stats/stats.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/stats/radar_chart.gd" id="2"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="3"]
 [ext_resource type="Material" path="res://themes/depth_background.tres" id="4"]
+[ext_resource type="Script" path="res://scenes/stats/rank_dial.gd" id="5"]
 
 [node name="Stats" type="Control"]
 anchor_right = 1.0
@@ -21,86 +22,204 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 44
-theme_override_constants/margin_top = 44
-theme_override_constants/margin_right = 44
-theme_override_constants/margin_bottom = 44
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 80
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 88
 
-[node name="Root" type="VBoxContainer" parent="Margin"]
+[node name="Scroll" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 22
+horizontal_scroll_mode = 0
 
-[node name="HeaderLabel" type="Label" parent="Margin/Root"]
+[node name="Root" type="VBoxContainer" parent="Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 26
+
+[node name="HeaderRow" type="HBoxContainer" parent="Margin/Scroll/Root"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleBox" type="VBoxContainer" parent="Margin/Scroll/Root/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Margin/Scroll/Root/HeaderRow/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "STATS"
 
-[node name="LevelRankLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-theme_type_variation = &"AccentLabel"
-text = "Level 1 — Rank E"
-
-[node name="RankBar" type="ProgressBar" parent="Margin/Root"]
-layout_mode = 2
-show_percentage = false
-
-[node name="RankProgressLabel" type="Label" parent="Margin/Root"]
+[node name="SubtitleLabel" type="Label" parent="Margin/Scroll/Root/HeaderRow/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"SecondaryLabel"
-text = "XP 0 / 500 to next rank"
+theme_override_font_sizes/font_size = 26
+text = "HUNTER PROGRESSION"
 
-[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+[node name="LevelPill" type="PanelContainer" parent="Margin/Scroll/Root/HeaderRow"]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="LevelBox" type="VBoxContainer" parent="Margin/Scroll/Root/HeaderRow/LevelPill"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="LevelTagLabel" type="Label" parent="Margin/Scroll/Root/HeaderRow/LevelPill/LevelBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 24
+text = "LEVEL"
+horizontal_alignment = 1
+
+[node name="LevelValueLabel" type="Label" parent="Margin/Scroll/Root/HeaderRow/LevelPill/LevelBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 46
+text = "1"
+horizontal_alignment = 1
+
+[node name="RankCard" type="PanelContainer" parent="Margin/Scroll/Root"]
 layout_mode = 2
 
-[node name="RadarChart" type="Control" parent="Margin/Root"]
-custom_minimum_size = Vector2(680, 680)
+[node name="RankBox" type="VBoxContainer" parent="Margin/Scroll/Root/RankCard"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/separation = 14
+
+[node name="RankHeaderRow" type="HBoxContainer" parent="Margin/Scroll/Root/RankCard/RankBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RankSectionLabel" type="Label" parent="Margin/Scroll/Root/RankCard/RankBox/RankHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
+text = "RANK PROGRESSION"
+
+[node name="RankTitleLabel" type="Label" parent="Margin/Scroll/Root/RankCard/RankBox/RankHeaderRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"AccentLabel"
+theme_override_font_sizes/font_size = 32
+text = "NOVICE"
+horizontal_alignment = 2
+
+[node name="RankDial" type="Control" parent="Margin/Scroll/Root/RankCard/RankBox"]
+custom_minimum_size = Vector2(0, 600)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+script = ExtResource("5")
+
+[node name="SyncLabel" type="Label" parent="Margin/Scroll/Root/RankCard/RankBox"]
+layout_mode = 2
+theme_type_variation = &"AccentLabel"
+text = "SYNC STATUS: 0%"
+horizontal_alignment = 1
+
+[node name="RankXPLabel" type="Label" parent="Margin/Scroll/Root/RankCard/RankBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = "XP 0 / 500 TO RANK D"
+horizontal_alignment = 1
+
+[node name="RadarCard" type="PanelContainer" parent="Margin/Scroll/Root"]
+layout_mode = 2
+
+[node name="RadarBox" type="VBoxContainer" parent="Margin/Scroll/Root/RadarCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="RadarHeaderRow" type="HBoxContainer" parent="Margin/Scroll/Root/RadarCard/RadarBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RadarGlyphSlot" type="Control" parent="Margin/Scroll/Root/RadarCard/RadarBox/RadarHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="RadarSectionLabel" type="Label" parent="Margin/Scroll/Root/RadarCard/RadarBox/RadarHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
+text = "ATTRIBUTES"
+
+[node name="RadarChart" type="Control" parent="Margin/Scroll/Root/RadarCard/RadarBox"]
+custom_minimum_size = Vector2(0, 620)
+layout_mode = 2
+size_flags_horizontal = 3
 script = ExtResource("2")
 
-[node name="StatBreakdownPanel" type="PanelContainer" parent="Margin/Root"]
+[node name="RadarHintLabel" type="Label" parent="Margin/Scroll/Root/RadarCard/RadarBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 24
+text = "TAP A NODE FOR THIS WEEK'S BREAKDOWN"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="BreakdownCard" type="PanelContainer" parent="Margin/Scroll/Root"]
 visible = false
 layout_mode = 2
 
-[node name="StatBreakdownMargin" type="MarginContainer" parent="Margin/Root/StatBreakdownPanel"]
+[node name="BreakdownBox" type="VBoxContainer" parent="Margin/Scroll/Root/BreakdownCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 26
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 26
-theme_override_constants/margin_bottom = 18
+theme_override_constants/separation = 14
 
-[node name="StatBreakdownBox" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="StatBreakdownHeader" type="Label" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
+[node name="BreakdownHeader" type="Label" parent="Margin/Scroll/Root/BreakdownCard/BreakdownBox"]
 layout_mode = 2
 theme_type_variation = &"AccentLabel"
-text = "STR this week"
+theme_override_font_sizes/font_size = 32
+text = "STR THIS WEEK"
 
-[node name="StatBreakdownList" type="VBoxContainer" parent="Margin/Root/StatBreakdownPanel/StatBreakdownMargin/StatBreakdownBox"]
+[node name="BreakdownList" type="VBoxContainer" parent="Margin/Scroll/Root/BreakdownCard/BreakdownBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
-[node name="PRSeparator" type="HSeparator" parent="Margin/Root"]
+[node name="PRCard" type="PanelContainer" parent="Margin/Scroll/Root"]
 layout_mode = 2
 
-[node name="PRHeader" type="Label" parent="Margin/Root"]
+[node name="PRBox" type="VBoxContainer" parent="Margin/Scroll/Root/PRCard"]
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "PERSONAL RECORDS"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Margin/Root"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="PRList" type="VBoxContainer" parent="Margin/Root/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/separation = 18
 
-[node name="BackButton" type="Button" parent="Margin/Root"]
+[node name="PRHeaderRow" type="HBoxContainer" parent="Margin/Scroll/Root/PRCard/PRBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PRGlyphSlot" type="Control" parent="Margin/Scroll/Root/PRCard/PRBox/PRHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="PRSectionLabel" type="Label" parent="Margin/Scroll/Root/PRCard/PRBox/PRHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
+text = "PERSONAL RECORDS"
+
+[node name="PRCountLabel" type="Label" parent="Margin/Scroll/Root/PRCard/PRBox/PRHeaderRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = ""
+horizontal_alignment = 2
+
+[node name="PRList" type="VBoxContainer" parent="Margin/Scroll/Root/PRCard/PRBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackButton" type="Button" parent="Margin/Scroll/Root"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"FloatingButton"
-text = "Back to Lobby"
+text = "BACK TO LOBBY"

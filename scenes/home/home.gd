@@ -303,6 +303,9 @@ func _set_accent_width(style: ChamferedStyleBox, width: float) -> void:
 	style.emit_changed()
 
 
+## set_low_energy_mode() emits quests_generated, which _refresh_quests is already
+## connected to — calling it here as well started a second crossfade on top of the
+## first, and the two tweens fighting over quest_list's alpha left the list dimmed.
 ## Turning the toggle off during an active recovery week (adaptive daily load, v5) must
 ## cancel it too — otherwise the reduction silently reapplies tomorrow and the toggle
 ## reads as broken. cancel_recovery_week() only clears the counter; set_low_energy_mode(false)
@@ -312,7 +315,6 @@ func _on_low_energy_toggled(pressed: bool) -> void:
 		QuestManager.cancel_recovery_week()
 		SaveManager.save_game()
 	QuestManager.set_low_energy_mode(pressed)
-	_refresh_quests()
 
 
 func _on_quest_toggled(pressed: bool, quest: Quest) -> void:
@@ -442,40 +444,3 @@ class AvatarRing extends Control:
 			Vector2(center.x + shoulder_width * 0.5, center.y + r * 0.7),
 		])
 		draw_colored_polygon(shoulder_points, icon_color)
-
-
-## Rank hexagon badge (design system v2: rank color applies to rank badge/hexagon
-## nodes). Flat hexagon fill with a rank-colored border and centered rank letter.
-class RankHexBadge extends Control:
-	var rank_color: Color = Color.WHITE
-	var rank_letter: String = "E"
-	var _label: Label
-
-	func _ready() -> void:
-		_label = Label.new()
-		_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_label.theme_type_variation = &"HeaderLabel"
-		add_child(_label)
-
-	func _draw() -> void:
-		var points := _hex_points()
-		var fill_color := rank_color.darkened(0.75)
-		draw_colored_polygon(points, fill_color)
-
-		var border_points := points.duplicate()
-		border_points.append(points[0])
-		draw_polyline(border_points, rank_color, 4.0, true)
-
-		_label.text = rank_letter
-		_label.add_theme_color_override("font_color", rank_color)
-
-	func _hex_points() -> PackedVector2Array:
-		var center := size / 2.0
-		var r: float = min(size.x, size.y) / 2.0 - 2.0
-		var points := PackedVector2Array()
-		for i in range(6):
-			var angle := deg_to_rad(60.0 * i - 90.0)
-			points.append(center + Vector2(cos(angle), sin(angle)) * r)
-		return points

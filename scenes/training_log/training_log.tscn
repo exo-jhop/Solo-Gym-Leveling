@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq7m3k9p2x5v8"]
+[gd_scene load_steps=4 format=3 uid="uid://cq7m3k9p2x5v8"]
 
 [ext_resource type="Script" path="res://scenes/training_log/training_log.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="2"]
+[ext_resource type="Material" path="res://themes/depth_background.tres" id="3"]
 
 [node name="TrainingLog" type="Control"]
 anchor_right = 1.0
@@ -10,6 +11,7 @@ theme = ExtResource("2")
 script = ExtResource("1")
 
 [node name="Background" type="ColorRect" parent="."]
+material = ExtResource("3")
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -18,89 +20,124 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 48
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 80
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 88
 
-[node name="Root" type="VBoxContainer" parent="Margin"]
+[node name="Scroll" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 28
+horizontal_scroll_mode = 0
 
-[node name="TitleLabel" type="Label" parent="Margin/Root"]
+[node name="Root" type="VBoxContainer" parent="Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 24
+
+[node name="TitleBox" type="VBoxContainer" parent="Margin/Scroll/Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Margin/Scroll/Root/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "TRAINING LOG"
-horizontal_alignment = 1
 
-[node name="HeaderRow" type="HBoxContainer" parent="Margin/Root"]
-layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="PrevButton" type="Button" parent="Margin/Root/HeaderRow"]
-layout_mode = 2
-text = "<"
-
-[node name="MonthLabel" type="Label" parent="Margin/Root/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Month Year"
-horizontal_alignment = 1
-
-[node name="NextButton" type="Button" parent="Margin/Root/HeaderRow"]
-layout_mode = 2
-text = ">"
-
-[node name="WeekdayRow" type="HBoxContainer" parent="Margin/Root"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="CalendarGrid" type="GridContainer" parent="Margin/Root"]
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 7
-
-[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
-layout_mode = 2
-
-[node name="DetailCard" type="PanelContainer" parent="Margin/Root"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="DetailCardMargin" type="MarginContainer" parent="Margin/Root/DetailCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 26
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 26
-theme_override_constants/margin_bottom = 22
-
-[node name="DetailPanel" type="VBoxContainer" parent="Margin/Root/DetailCard/DetailCardMargin"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 11
-
-[node name="DetailTitleLabel" type="Label" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel"]
-layout_mode = 2
-theme_type_variation = &"AccentLabel"
-text = "Select a day"
-
-[node name="DetailSummaryLabel" type="Label" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel"]
+[node name="SubtitleLabel" type="Label" parent="Margin/Scroll/Root/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"SecondaryLabel"
-text = ""
+theme_override_font_sizes/font_size = 26
+text = "COMPLETION HISTORY"
 
-[node name="DetailScroll" type="ScrollContainer" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel"]
+[node name="MonthCard" type="PanelContainer" parent="Margin/Scroll/Root"]
 layout_mode = 2
-size_flags_vertical = 3
 
-[node name="DetailQuestList" type="VBoxContainer" parent="Margin/Root/DetailCard/DetailCardMargin/DetailPanel/DetailScroll"]
+[node name="MonthBox" type="VBoxContainer" parent="Margin/Scroll/Root/MonthCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="MonthRow" type="HBoxContainer" parent="Margin/Scroll/Root/MonthCard/MonthBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PrevButton" type="Button" parent="Margin/Scroll/Root/MonthCard/MonthBox/MonthRow"]
+custom_minimum_size = Vector2(144, 144)
+layout_mode = 2
+tooltip_text = "Previous month"
+
+[node name="MonthLabel" type="Label" parent="Margin/Scroll/Root/MonthCard/MonthBox/MonthRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 40
+text = "MONTH YEAR"
+horizontal_alignment = 1
 
-[node name="BackButton" type="Button" parent="Margin/Root"]
+[node name="NextButton" type="Button" parent="Margin/Scroll/Root/MonthCard/MonthBox/MonthRow"]
+custom_minimum_size = Vector2(144, 144)
+layout_mode = 2
+tooltip_text = "Next month"
+
+[node name="WeekdayRow" type="HBoxContainer" parent="Margin/Scroll/Root/MonthCard/MonthBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CalendarGrid" type="GridContainer" parent="Margin/Scroll/Root/MonthCard/MonthBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 7
+
+[node name="LegendGrid" type="GridContainer" parent="Margin/Scroll/Root/MonthCard/MonthBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="MonthStatsGrid" type="GridContainer" parent="Margin/Scroll/Root"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 2
+
+[node name="DetailCard" type="PanelContainer" parent="Margin/Scroll/Root"]
+layout_mode = 2
+
+[node name="DetailBox" type="VBoxContainer" parent="Margin/Scroll/Root/DetailCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="DetailHeaderRow" type="HBoxContainer" parent="Margin/Scroll/Root/DetailCard/DetailBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="DetailGlyphSlot" type="Control" parent="Margin/Scroll/Root/DetailCard/DetailBox/DetailHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="DetailTitleLabel" type="Label" parent="Margin/Scroll/Root/DetailCard/DetailBox/DetailHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 34
+text = "SELECT A DAY"
+
+[node name="DetailSummaryLabel" type="Label" parent="Margin/Scroll/Root/DetailCard/DetailBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = ""
+autowrap_mode = 2
+
+[node name="DetailQuestList" type="VBoxContainer" parent="Margin/Scroll/Root/DetailCard/DetailBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="Margin/Scroll/Root"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_type_variation = &"FloatingButton"
-text = "Back to Lobby"
+text = "BACK TO LOBBY"

@@ -10,12 +10,15 @@ extends Control
 
 signal stat_tapped(stat_index: int)
 
-const STAT_FONT := preload("res://assets/fonts/CascadiaCode.ttf")
+## Rajdhani, not the monospace CascadiaCode this used to draw with: the design system
+## specifies a geometric display sans for numeric readouts and explicitly rules out
+## code-style mono, and every other label in the app already uses it.
+const STAT_FONT := preload("res://assets/fonts/Rajdhani-SemiBold.ttf")
 
 const STAT_LABELS := ["STR", "VIT", "AGI", "INT", "SENSE"]
 const RING_COUNT := 4
 const LABEL_MARGIN := 64.0
-const LABEL_FONT_SIZE := 26
+const LABEL_FONT_SIZE := 30
 
 # #00B8FF (v2 primary accent, was #00D9FF)
 const GRID_COLOR := Color(0.0, 0.721569, 1.0, 0.2)

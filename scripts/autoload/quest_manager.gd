@@ -129,7 +129,11 @@ func generate_daily_quests() -> void:
 			var exercise: Exercise = day.exercises[i]
 			var stat := _stat_for_day(day.day_name, i)
 			var quest := _make_quest(
-				"lift_%s" % exercise.name.to_snake_case(),
+				# Index-prefixed so two exercises with the same name in one day — or two
+				# blank-named rows, which Settings' "+ Add Exercise" creates by default —
+				# don't collide. complete_quest()/get_quest() match on id, so a duplicate
+				# id left the second quest permanently uncompletable.
+				"lift_%d_%s" % [i, exercise.name.to_snake_case()],
 				"%s: %dx%s" % [exercise.name, exercise.sets, exercise.rep_range],
 				"lift", stat, 15, exercise.sets, "sets"
 			)

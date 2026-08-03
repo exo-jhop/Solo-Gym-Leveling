@@ -162,7 +162,7 @@ func next_rank_threshold() -> int:
 ## than always costing exactly one freeze (see spec discussion: this also means a
 ## same-day-cadence miss with no gap costs nothing, only multi-day absences do).
 func evaluate_streak(days_gap: int = 1) -> void:
-	if _completed_something_today:
+	if _closing_day_had_completion():
 		hunter_stats.current_streak += 1
 		hunter_stats.longest_streak = max(hunter_stats.longest_streak, hunter_stats.current_streak)
 	elif days_gap <= 1:
@@ -176,3 +176,19 @@ func evaluate_streak(days_gap: int = 1) -> void:
 			hunter_stats.streak_freezes_available = 0
 	_completed_something_today = false
 	stats_changed.emit()
+
+
+## Whether the day that just ended had at least one quest completed.
+##
+## _completed_something_today only survives inside a single process: an app closed and
+## reopened the next day starts with it false, which meant the streak never advanced
+## unless the app happened to stay open across midnight. The completions are still on the
+## loaded quest list at this point — SaveManager calls evaluate_streak() before
+## generate_daily_quests() replaces it — so fall back to reading them.
+func _closing_day_had_completion() -> bool:
+	if _completed_something_today:
+		return true
+	for quest in QuestManager.current_quests:
+		if quest.completed:
+			return true
+	return false
