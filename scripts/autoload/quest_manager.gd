@@ -35,6 +35,17 @@ const BODYWEIGHT_LOG_DAYS := [0, 3]  # cycle day indices that include a bodyweig
 # stale. Consumed by the recalibration popup.
 var pending_recalibration: Dictionary = {}
 
+# Remaining training days in an accepted recovery week (adaptive daily load, v5).
+# Persisted — unlike pending_* scratch state, an accepted multi-day commitment must
+# survive both restarts and day rollovers, which is exactly what low_energy_mode alone
+# cannot do (it resets to false on every generate_daily_quests() call).
+var recovery_days_remaining: int = 0
+
+# Staged by SaveManager's daily check (see LoadAdjuster). Not persisted, matching
+# pending_recalibration: if the app closes before the user answers, it is simply
+# re-evaluated on the next rollover rather than reappearing stale.
+var pending_load_adjustment: Dictionary = {}
+
 
 func _ready() -> void:
 	_build_placeholder_cycle()
@@ -126,6 +137,15 @@ func generate_daily_quests() -> void:
 			quest.rep_range = exercise.rep_range
 			current_quests.append(quest)
 
+		# Recovery week (adaptive daily load, v5): auto-applies the existing single-set
+		# reduction for the day's lift quests, mirroring the manual low-energy toggle so
+		# there's only one difficulty mechanism. A rest day has no lift quests to reduce
+		# and must not consume a recovery day, hence this sits inside the non-rest branch.
+		if recovery_days_remaining > 0:
+			_apply_set_reduction(true)
+			low_energy_mode = true
+			recovery_days_remaining -= 1
+
 	current_quests.append(_make_quest("protein", "Hit %dg protein" % int(protein_target_g), "nutrition", "INT", 10, protein_target_g, "g"))
 	current_quests.append(_make_quest("creatine", "Take %dg creatine" % int(creatine_target_g), "supplement", "SENSE", 5, creatine_target_g, "g"))
 
@@ -202,6 +222,16 @@ func set_low_energy_mode(enabled: bool) -> void:
 	if not has_lift_quests() or any_lift_quest_completed():
 		return
 
+	_apply_set_reduction(enabled)
+	low_energy_mode = enabled
+	quests_generated.emit()
+
+
+## Shared reduction logic for both the manual low-energy toggle and an accepted recovery
+## week (adaptive daily load, v5) — one difficulty mechanism, two triggers. Does not emit
+## quests_generated itself: callers that build current_quests from scratch (recovery week
+## inside generate_daily_quests()) must not double-emit the signal that call already fires.
+func _apply_set_reduction(enabled: bool) -> void:
 	for quest in current_quests:
 		if quest.category != "lift":
 			continue
@@ -212,9 +242,6 @@ func set_low_energy_mode(enabled: bool) -> void:
 			quest.target_value = quest.original_target_value
 			quest.original_target_value = -1.0
 		quest.title = "%s: %dx%s" % [quest.exercise_name, int(quest.target_value), quest.rep_range]
-
-	low_energy_mode = enabled
-	quests_generated.emit()
 
 
 ## Applies an accepted weekly recalibration suggestion — a single Accept bundles both the
@@ -244,3 +271,48 @@ func apply_recalibration(suggestion: Dictionary) -> void:
 
 func dismiss_recalibration() -> void:
 	pending_recalibration = {}
+
+
+## Applies an accepted load adjustment (adaptive daily load, v5). recovery_week only sets
+## a counter — the training_cycle is untouched, since a recovery week is a temporary dial,
+## not a program change; generate_daily_quests() re-applies the reduction each of the next
+## recovery_days_remaining days. reduce_volume/ready_to_progress do edit the cycle, the
+## same way apply_recalibration does. Both are capped/floored so repeated accepts can't
+## drift volume unbounded in either direction. Caller is expected to save afterward.
+func apply_load_adjustment(suggestion: Dictionary) -> void:
+	match suggestion.get("kind", ""):
+		"recovery_week":
+			recovery_days_remaining = suggestion.get("recovery_days", LoadAdjuster.RECOVERY_WEEK_DAYS)
+		"reduce_volume":
+			var min_sets: int = suggestion.get("min_sets", LoadAdjuster.MIN_SETS)
+			for day in training_cycle:
+				if day.is_rest_day:
+					continue
+				for exercise in day.exercises:
+					exercise.sets = maxi(exercise.sets + suggestion.get("set_delta", -LoadAdjuster.SET_DELTA), min_sets)
+		"ready_to_progress":
+			var max_sets: int = suggestion.get("max_sets", LoadAdjuster.MAX_SETS)
+			for day in training_cycle:
+				if day.is_rest_day:
+					continue
+				for exercise in day.exercises:
+					exercise.sets = mini(exercise.sets + suggestion.get("set_delta", LoadAdjuster.SET_DELTA), max_sets)
+
+	pending_load_adjustment = {}
+
+
+func dismiss_load_adjustment() -> void:
+	pending_load_adjustment = {}
+
+
+## True while a recovery week is in progress, for Home's indicator and Settings' cancel.
+func recovery_week_active() -> bool:
+	return recovery_days_remaining > 0
+
+
+## User override: cancels the remaining recovery week (see home.gd interaction note).
+## Only clears the counter so future days stop re-applying the reduction — today's
+## already-generated quests are reverted separately by set_low_energy_mode(false), the
+## same path the manual toggle uses.
+func cancel_recovery_week() -> void:
+	recovery_days_remaining = 0
