@@ -37,6 +37,7 @@ const MONTH_NAMES := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "S
 @onready var xp_label: Label = $Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox/XPBarStack/XPLabel
 @onready var radar_chart: Control = $Margin/ScrollContainer/Root/RadarChart
 @onready var low_energy_toggle: CheckBox = $Margin/ScrollContainer/Root/QuestsHeaderRow/LowEnergyToggle
+@onready var recovery_label: Label = $Margin/ScrollContainer/Root/RecoveryLabel
 @onready var quest_list: VBoxContainer = $Margin/ScrollContainer/Root/QuestList
 @onready var stats_button: Button = $Margin/ScrollContainer/Root/ButtonRow/StatsButton
 @onready var lobby_button: Button = $Margin/ScrollContainer/Root/ButtonRow/BackButton
@@ -137,6 +138,13 @@ func _refresh_quests() -> void:
 	low_energy_toggle.visible = QuestManager.has_lift_quests()
 	low_energy_toggle.set_pressed_no_signal(QuestManager.low_energy_mode)
 	low_energy_toggle.disabled = QuestManager.any_lift_quest_completed()
+
+	# Without this, an auto-applied recovery-week reduction (adaptive daily load, v5) has
+	# no on-screen explanation and the pre-checked toggle reads as a bug.
+	recovery_label.visible = QuestManager.recovery_week_active()
+	if recovery_label.visible:
+		var days_left := QuestManager.recovery_days_remaining
+		recovery_label.text = "Recovery week — %d session%s left" % [days_left, "" if days_left == 1 else "s"]
 
 	var tween := create_tween()
 	tween.tween_property(quest_list, "modulate:a", 0.0, 0.1) \
@@ -295,7 +303,14 @@ func _set_accent_width(style: ChamferedStyleBox, width: float) -> void:
 	style.emit_changed()
 
 
+## Turning the toggle off during an active recovery week (adaptive daily load, v5) must
+## cancel it too — otherwise the reduction silently reapplies tomorrow and the toggle
+## reads as broken. cancel_recovery_week() only clears the counter; set_low_energy_mode(false)
+## still does the actual today's-quests reversal, same as a manual low-energy toggle-off.
 func _on_low_energy_toggled(pressed: bool) -> void:
+	if not pressed and QuestManager.recovery_week_active():
+		QuestManager.cancel_recovery_week()
+		SaveManager.save_game()
 	QuestManager.set_low_energy_mode(pressed)
 	_refresh_quests()
 

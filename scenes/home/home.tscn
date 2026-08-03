@@ -194,6 +194,13 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "LOW ENERGY"
 
+[node name="RecoveryLabel" type="Label" parent="Margin/ScrollContainer/Root"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 24
+text = "Recovery week — 0 sessions left"
+
 [node name="QuestList" type="VBoxContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 size_flags_horizontal = 3
