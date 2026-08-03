@@ -88,8 +88,8 @@ func _ready() -> void:
 
 
 func _build_chrome() -> void:
-	HudCard.apply(month_card, SystemPalette.PRIMARY, MONTH_CARD_MARGIN)
-	_detail_style = HudCard.apply(detail_card)
+	HudCard.apply(month_card, SystemPalette.PRIMARY, MONTH_CARD_MARGIN, false)
+	_detail_style = HudCard.apply(detail_card, SystemPalette.PRIMARY, HudCard.CONTENT_MARGIN, false)
 	_detail_glyph = _add_glyph(detail_glyph_slot, HudGlyph.Shape.CALENDAR, SystemPalette.PRIMARY)
 
 	# Icon-only month paging, sized to the touch minimum. The old "<" / ">" text buttons
@@ -250,7 +250,6 @@ func _style_cell(cell: Button, has_data: bool, ratio: float, is_today: bool, is_
 	style.accent_width = 0.0
 	style.shadow_size = 0.0
 	style.gradient_depth = 0.1
-	style.highlight_strength = 0.0
 
 	if is_selected:
 		style.accent_color = SystemPalette.PRIMARY
@@ -353,7 +352,7 @@ func _refresh_month_stats() -> void:
 		{"caption": "COMPLETION", "value": "%d%%" % completion, "accent": SystemPalette.SUCCESS},
 	]
 	for tile_data in tiles:
-		var tile := HudCard.metric_tile(String(tile_data.caption), String(tile_data.value), tile_data.accent)
+		var tile := HudCard.metric_tile(String(tile_data.caption), String(tile_data.value), tile_data.accent, false)
 		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		month_stats_grid.add_child(tile)
 

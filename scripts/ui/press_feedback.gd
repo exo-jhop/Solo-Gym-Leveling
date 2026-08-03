@@ -6,7 +6,11 @@ class_name PressFeedback
 
 const PRESS_SCALE := Vector2(0.97, 0.97)
 const PRESS_DURATION := 0.1
-const RELEASE_DURATION := 0.15
+## Release overshoots past 1.0 before settling — a small pop rather than a flat
+## settle back to rest, so the release reads as springy instead of just "un-pressed".
+const OVERSHOOT_SCALE := Vector2(1.015, 1.015)
+const OVERSHOOT_DURATION := 0.1
+const SETTLE_DURATION := 0.12
 
 const CLICK_STREAM: AudioStream = preload("res://res/sfx/clicksoundeffect.mp3")
 
@@ -33,7 +37,12 @@ static func _play_click(button: BaseButton) -> void:
 
 
 static func _on_up(button: BaseButton) -> void:
-	_animate(button, Vector2.ONE, RELEASE_DURATION)
+	button.pivot_offset = button.size / 2.0
+	var tween := button.create_tween()
+	tween.tween_property(button, "scale", OVERSHOOT_SCALE, OVERSHOOT_DURATION) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(button, "scale", Vector2.ONE, SETTLE_DURATION) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 static func _animate(button: BaseButton, target_scale: Vector2, duration: float) -> void:

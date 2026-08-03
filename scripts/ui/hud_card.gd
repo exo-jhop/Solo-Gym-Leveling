@@ -21,33 +21,41 @@ const ROW_MARGIN := {"left": 24.0, "top": 18.0, "right": 24.0, "bottom": 18.0}
 const TILE_MARGIN := {"left": 26.0, "top": 22.0, "right": 26.0, "bottom": 20.0}
 
 
-static func style(accent: Color = SystemPalette.PRIMARY, margins: Dictionary = CONTENT_MARGIN) -> ChamferedStyleBox:
+## `show_accent` controls the diagonal accent trace/glow along the chamfer cut. It
+## defaults on (the design system's signature card look) but Stats and the Training
+## Log turn it off on their section containers, per a request that the trace read as
+## a stray line on those screens' cards rather than the intentional shape it is
+## elsewhere (Home, Weekly Summary, Settings).
+static func style(accent: Color = SystemPalette.PRIMARY, margins: Dictionary = CONTENT_MARGIN, show_accent: bool = true) -> ChamferedStyleBox:
 	var box := ChamferedStyleBox.new()
 	box.accent_color = accent
 	box.content_margin_left = margins.left
 	box.content_margin_top = margins.top
 	box.content_margin_right = margins.right
 	box.content_margin_bottom = margins.bottom
+	if not show_accent:
+		box.accent_width = 0.0
 	return box
 
 
 ## Toned-down card for repeated list rows. At full strength the drop shadow and accent
 ## bloom stack up down a long list and start competing with the content instead of
 ## framing it, and a 30px chamfer eats a row that's only ~120px tall.
-static func row_style(accent: Color = SystemPalette.PRIMARY, margins: Dictionary = ROW_MARGIN) -> ChamferedStyleBox:
-	var box := style(accent, margins)
+static func row_style(accent: Color = SystemPalette.PRIMARY, margins: Dictionary = ROW_MARGIN, show_accent: bool = true) -> ChamferedStyleBox:
+	var box := style(accent, margins, show_accent)
 	box.chamfer_size = 18.0
-	box.accent_width = 3.0
-	box.glow_strength = 0.22
 	box.shadow_size = 8.0
 	box.shadow_offset = Vector2(0.0, 4.0)
+	if show_accent:
+		box.accent_width = 3.0
+		box.glow_strength = 0.22
 	return box
 
 
 ## Styles an existing PanelContainer and hands the box back, since rank-accented cards
 ## need to recolor it later (accent_color + emit_changed) as the rank changes.
-static func apply(panel: PanelContainer, accent: Color = SystemPalette.PRIMARY, margins: Dictionary = CONTENT_MARGIN) -> ChamferedStyleBox:
-	var box := style(accent, margins)
+static func apply(panel: PanelContainer, accent: Color = SystemPalette.PRIMARY, margins: Dictionary = CONTENT_MARGIN, show_accent: bool = true) -> ChamferedStyleBox:
+	var box := style(accent, margins, show_accent)
 	panel.add_theme_stylebox_override("panel", box)
 	return box
 
@@ -55,9 +63,9 @@ static func apply(panel: PanelContainer, accent: Color = SystemPalette.PRIMARY, 
 ## Big-number KPI tile: the readout first at display scale, its label underneath in
 ## secondary text. Used for the metric grids on Weekly Summary and the Training Log's
 ## month rollup, where four short numbers say more than four full sentences did.
-static func metric_tile(caption: String, value: String, accent: Color = SystemPalette.PRIMARY) -> PanelContainer:
+static func metric_tile(caption: String, value: String, accent: Color = SystemPalette.PRIMARY, show_accent: bool = true) -> PanelContainer:
 	var tile := PanelContainer.new()
-	apply(tile, accent, TILE_MARGIN)
+	apply(tile, accent, TILE_MARGIN, show_accent)
 
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)

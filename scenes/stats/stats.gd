@@ -66,12 +66,12 @@ func _ready() -> void:
 ## Card category accents (design system v2): primary blue for progression/attributes,
 ## gold for the achievement category the PR list belongs to.
 func _build_cards() -> void:
-	_rank_style = HudCard.apply(rank_card)
-	_level_style = HudCard.row_style(SystemPalette.PRIMARY, {"left": 30.0, "top": 12.0, "right": 30.0, "bottom": 16.0})
+	_rank_style = HudCard.apply(rank_card, SystemPalette.PRIMARY, HudCard.CONTENT_MARGIN, false)
+	_level_style = HudCard.row_style(SystemPalette.PRIMARY, {"left": 30.0, "top": 12.0, "right": 30.0, "bottom": 16.0}, false)
 	level_pill.add_theme_stylebox_override("panel", _level_style)
-	HudCard.apply(radar_card)
-	HudCard.apply(breakdown_card)
-	HudCard.apply(pr_card, SystemPalette.GOLD)
+	HudCard.apply(radar_card, SystemPalette.PRIMARY, HudCard.CONTENT_MARGIN, false)
+	HudCard.apply(breakdown_card, SystemPalette.PRIMARY, HudCard.CONTENT_MARGIN, false)
+	HudCard.apply(pr_card, SystemPalette.GOLD, HudCard.CONTENT_MARGIN, false)
 
 	_add_glyph(radar_glyph_slot, HudGlyph.Shape.STATS, SystemPalette.PRIMARY)
 	_add_glyph(pr_glyph_slot, HudGlyph.Shape.TROPHY, SystemPalette.GOLD)
@@ -270,7 +270,7 @@ func _build_pr_row(exercise_name: String, metric: String) -> PanelContainer:
 	var card := PanelContainer.new()
 	# Gold accent: PRs are achievement cards, the category the design system assigns
 	# #FFB800 to (the same accent the Lobby's streak pill uses).
-	card.add_theme_stylebox_override("panel", HudCard.row_style(SystemPalette.GOLD))
+	card.add_theme_stylebox_override("panel", HudCard.row_style(SystemPalette.GOLD, HudCard.ROW_MARGIN, false))
 
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)

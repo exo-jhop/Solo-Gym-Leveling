@@ -7,9 +7,15 @@ extends RefCounted
 ## weekly_summary.gd, and simply missing on stats/home/quest_detail).
 ##
 ## apply() with no optional args is the plain "Back" button every screen uses. The
-## optional args cover everything else: `accent` recolors the chamfer trace, `margins`
-## picks an inset from the constants below, and `emphasis` promotes a button to the
-## screen's single primary CTA.
+## optional args cover everything else: `accent` recolors the border (hover/pressed)
+## and, on the emphasis CTA, its fill tint and breathing pulse; `margins` picks an
+## inset from the constants below; `emphasis` promotes a button to the screen's single
+## primary CTA.
+##
+## Buttons deliberately don't use ChamferedStyleBox's diagonal accent trace/glow along
+## the chamfer cut (accent_width stays 0 below) — on a button that line read as a
+## stray corner artifact rather than the intentional card-shape signature it is on
+## non-button panels (Hero Card, stat tiles, ...), which still use it as normal.
 
 const PRIMARY_ACCENT := SystemPalette.PRIMARY
 const DIVIDER_COLOR := SystemPalette.DIVIDER
@@ -26,12 +32,18 @@ const COMPACT_CONTENT_MARGIN := {"left": 24.0, "top": 14.0, "right": 24.0, "bott
 const ICON_ONLY_MARGIN := {"left": 12.0, "top": 12.0, "right": 12.0, "bottom": 12.0}
 
 
-## Chamfer/accent tuning for a full-width card-sized button — the ChamferedStyleBox defaults.
-const CARD_SHAPE := {"chamfer": 30.0, "accent": 5.0, "glow": 0.55, "shadow": 14.0}
-## Tuning for a square icon-only button. The card values are proportioned for a wide panel;
-## on a 144px square a 30px chamfer cuts a fifth off each side and the accent bloom spills
-## well past the button, which read as a damaged card rather than as a button.
-const ICON_SHAPE := {"chamfer": 14.0, "accent": 3.0, "glow": 0.28, "shadow": 6.0}
+## Chamfer/shadow tuning for a full-width card-sized button.
+const CARD_SHAPE := {"chamfer": 30.0, "shadow": 14.0}
+## Tuning for a square icon-only button — a smaller chamfer than the card shape, since
+## a 144px square button can't carry the same 30px cut as a wide panel.
+const ICON_SHAPE := {"chamfer": 14.0, "shadow": 6.0}
+
+## Idle "breathing" border on the one emphasis (primary CTA) button per screen: a slow
+## sine-like pulse of the border's accent alpha, so the screen's single main action
+## keeps drawing the eye at rest instead of only reacting to touch.
+const BREATH_MIN_BORDER_ALPHA := 0.5
+const BREATH_MAX_BORDER_ALPHA := 1.0
+const BREATH_HALF_PERIOD := 2.1
 
 
 static func apply(
@@ -57,23 +69,33 @@ static func _apply_boxes(
 	shape: Dictionary
 ) -> void:
 	var normal := _make(accent, margins, shape)
-	# Resting state normally reads as a quiet surface card with only the chamfer lit.
-	# The primary CTA instead carries an accent-tinted fill and a lit border, so a hub
-	# screen's one main action is visibly above the secondary cards rather than beside
-	# them (design system: one primary action per screen).
+	# Resting state normally reads as a quiet surface card with a plain divider border.
+	# The primary CTA instead carries an accent-tinted fill and a breathing accent
+	# border, so a hub screen's one main action is visibly above the secondary cards
+	# rather than beside them (design system: one primary action per screen).
 	if emphasis:
 		normal.fill_color = SURFACE_COLOR.lerp(accent, 0.15)
 		normal.border_color = SystemPalette.alpha(accent, 0.75)
-		normal.glow_strength = 0.8
+		_start_breathing(button, normal, accent)
 	else:
 		normal.border_color = DIVIDER_COLOR
 
+	# Hover reads as the card lifting toward the viewer: fill warms slightly toward the
+	# accent and the shadow grows and drops further (greater implied elevation) — the
+	# button looks lit up rather than just outlined.
 	var hover := _make(accent, margins, shape)
 	hover.border_color = accent
+	hover.fill_color = SURFACE_COLOR.lerp(accent, 0.08)
+	hover.shadow_size = shape.shadow * 1.25
+	hover.shadow_offset = Vector2(0.0, 9.0)
 
+	# Pressed is the opposite move: the card sinks into the surface, so the shadow
+	# tightens and pulls in underneath it.
 	var pressed := _make(accent, margins, shape)
 	pressed.fill_color = SystemPalette.alpha(accent, 0.18)
 	pressed.border_color = accent
+	pressed.shadow_size = shape.shadow * 0.35
+	pressed.shadow_offset = Vector2(0.0, 3.0)
 
 	# Without an explicit disabled box the theme's rounded-rect StyleBoxFlat showed
 	# through the moment a button greyed out — so Settings' Swap button (no alternatives
@@ -82,10 +104,7 @@ static func _apply_boxes(
 	var disabled := _make(accent, margins, shape)
 	disabled.fill_color = SystemPalette.alpha(SURFACE_COLOR, 0.45)
 	disabled.border_color = SystemPalette.alpha(DIVIDER_COLOR, 0.5)
-	disabled.accent_color = SystemPalette.alpha(accent, 0.28)
-	disabled.glow_strength = 0.0
 	disabled.shadow_size = 0.0
-	disabled.highlight_strength = 0.0
 
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
@@ -94,13 +113,37 @@ static func _apply_boxes(
 	button.add_theme_stylebox_override("disabled", disabled)
 
 
+## Loops for as long as the button lives: Node.create_tween() binds the tween to
+## `button` and Godot kills it automatically when the button is freed. Re-applying the
+## style (e.g. the Lobby CTA re-coloring on day-clear) would otherwise stack a second
+## tween driving a StyleBox no one can see anymore, so any previous one is killed first.
+static func _start_breathing(button: Button, box: ChamferedStyleBox, accent: Color) -> void:
+	# get_meta()'s default-value overload can't tell "no default passed" apart from an
+	# explicit null default, so it errors on a missing key either way — has_meta() first
+	# sidesteps that instead of relying on the default param.
+	if button.has_meta("breathing_tween"):
+		var previous: Tween = button.get_meta("breathing_tween")
+		previous.kill()
+
+	var tween := button.create_tween()
+	tween.set_loops()
+	tween.tween_method(Callable(NavButtonStyle, "_set_breath_border").bind(accent, box), BREATH_MIN_BORDER_ALPHA, BREATH_MAX_BORDER_ALPHA, BREATH_HALF_PERIOD) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(Callable(NavButtonStyle, "_set_breath_border").bind(accent, box), BREATH_MAX_BORDER_ALPHA, BREATH_MIN_BORDER_ALPHA, BREATH_HALF_PERIOD) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	button.set_meta("breathing_tween", tween)
+
+
+static func _set_breath_border(value: float, accent: Color, box: ChamferedStyleBox) -> void:
+	box.border_color = SystemPalette.alpha(accent, value)
+	box.emit_changed()
+
+
 static func _make(accent: Color, margins: Dictionary, shape: Dictionary) -> ChamferedStyleBox:
 	var style := ChamferedStyleBox.new()
-	style.accent_color = accent
 	style.border_color = DIVIDER_COLOR
 	style.chamfer_size = shape.chamfer
-	style.accent_width = shape.accent
-	style.glow_strength = shape.glow
+	style.accent_width = 0.0
 	style.shadow_size = shape.shadow
 	style.content_margin_left = margins.left
 	style.content_margin_top = margins.top
