@@ -50,6 +50,10 @@ func save_game() -> void:
 	for day in QuestManager.training_cycle:
 		training_cycle_dicts.append(day.to_dict())
 
+	var meal_plan_dicts: Array = []
+	for entry in QuestManager.meal_plan:
+		meal_plan_dicts.append(entry.to_dict())
+
 	var data := {
 		"save_version": SAVE_VERSION,
 		"last_opened_date": last_opened_date,
@@ -66,6 +70,7 @@ func save_game() -> void:
 		"training_cycle": training_cycle_dicts,
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
+		"meal_plan": meal_plan_dicts,
 		"hunter_profile": ProfileManager.profile.to_dict(),
 		"low_energy_mode": QuestManager.low_energy_mode,
 		"reminder_hours": NotificationManager.reminder_hours,
@@ -127,6 +132,10 @@ func load_game() -> bool:
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
+
+	QuestManager.meal_plan.clear()
+	for entry_data in data.get("meal_plan", []):
+		QuestManager.meal_plan.append(MealEntry.from_dict(entry_data))
 
 	# Migration (spec v4 6): a save from before HunterProfile existed has no "hunter_profile"
 	# key at all. Build one from what's already known instead of reopening full onboarding.

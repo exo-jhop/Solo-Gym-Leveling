@@ -185,8 +185,11 @@ func _rebuild_quest_cards() -> void:
 
 		# Lift quests need a real logged value/weight (set via Quest Detail's "LOG" flow) —
 		# a bare checkbox here would complete them with target_value (a set count)
-		# misrecorded as reps, polluting PRTracker. Only non-lift quests get the checkbox.
-		if quest.category != "lift":
+		# misrecorded as reps, polluting PRTracker. Meal-plan quests complete themselves
+		# once every planned meal is checked off on the Meal Plan screen — a bare checkbox
+		# here would let a quest with zero (or unfinished) planned meals be ticked complete
+		# without the user ever opening that screen. Both instead only get the LOG button.
+		if quest.category != "lift" and quest.category != "meal":
 			var check := CheckBox.new()
 			check.text = ""
 			check.custom_minimum_size = Vector2(56, 56)
@@ -260,11 +263,17 @@ func _build_stat_pill(stat_reward: String) -> PanelContainer:
 	return pill
 
 
-## Lift quests: sets/rep-range (the real per-completion target). Nutrition/supplement
-## quests: their target_value+unit (also real data, e.g. "90 g"). Recovery has neither.
+## Lift quests: sets/rep-range (the real per-completion target). Meal-plan quests: live
+## eaten/planned counts, since target_value grows as meals are added throughout the day.
+## Nutrition/supplement quests: their target_value+unit (also real data, e.g. "90 g").
+## Recovery has neither.
 func _target_text(quest: Quest) -> String:
 	if quest.category == "lift":
 		return "%d sets · %s reps" % [int(quest.target_value), quest.rep_range]
+	if quest.category == "meal":
+		if quest.target_value <= 0:
+			return "No meals planned yet"
+		return "%d/%d meals" % [int(quest.logged_value), int(quest.target_value)]
 	if quest.unit != "":
 		var value_text := str(int(quest.target_value)) if quest.target_value == floor(quest.target_value) else str(quest.target_value)
 		return "%s %s" % [value_text, quest.unit]
@@ -401,7 +410,12 @@ func _on_lobby_pressed() -> void:
 
 func _on_log_pressed(quest: Quest) -> void:
 	QuestManager.selected_quest_id = quest.id
-	SceneTransition.go_to_scene("res://scenes/quest_detail/quest_detail.tscn")
+	# Meal-plan quests need an editable multi-item checklist, not Quest Detail's single
+	# logged-value/weight form, so they get their own screen instead.
+	if quest.category == "meal":
+		SceneTransition.go_to_scene("res://scenes/meal_plan/meal_plan.tscn")
+	else:
+		SceneTransition.go_to_scene("res://scenes/quest_detail/quest_detail.tscn")
 
 
 ## Generic geometric avatar placeholder (no copyrighted character art per design

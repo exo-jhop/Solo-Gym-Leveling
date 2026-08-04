@@ -19,6 +19,12 @@ var selected_quest_id: String = ""
 var protein_target_g: float = 90.0
 var creatine_target_g: float = 5.0
 
+# Today's user-authored meal plan (feature: daily meal plan). Free-text entries only, no
+# calorie/macro number — the "meal_plan" quest below is what actually tracks completion,
+# this array is just the checklist backing it. Reset to empty every generate_daily_quests()
+# call since a meal plan is authored fresh each day, unlike protein/creatine targets.
+var meal_plan: Array[MealEntry] = []
+
 # "Feeling low energy today?" toggle (spec v2 4.3). Resets to false on each new day;
 # persisted across app restarts within the same day so the choice sticks.
 var low_energy_mode: bool = false
@@ -118,6 +124,7 @@ func _stat_for_day(day_name: String, exercise_index: int) -> String:
 ## Builds current_quests for the current cycle_day_index, then advances the cycle.
 func generate_daily_quests() -> void:
 	current_quests.clear()
+	meal_plan.clear()
 	low_energy_mode = false
 	all_complete_shown = false
 	var day: TrainingDay = training_cycle[cycle_day_index]
@@ -152,6 +159,7 @@ func generate_daily_quests() -> void:
 
 	current_quests.append(_make_quest("protein", "Hit %dg protein" % int(protein_target_g), "nutrition", "INT", 10, protein_target_g, "g"))
 	current_quests.append(_make_quest("creatine", "Take %dg creatine" % int(creatine_target_g), "supplement", "SENSE", 5, creatine_target_g, "g"))
+	current_quests.append(_make_quest("meal_plan", "Follow your meal plan", "meal", "INT", 15, 0.0, "meals"))
 
 	if cycle_day_index in BODYWEIGHT_LOG_DAYS:
 		current_quests.append(_make_quest("bodyweight", "Log bodyweight", "nutrition", "INT", 5, 0.0, "kg"))
@@ -189,6 +197,55 @@ func complete_quest(quest_id: String, logged_value: float = 0.0, logged_weight: 
 			quest_completed.emit(quest)
 			return true
 	return false
+
+
+## Adds a planned meal to today's list (feature: daily meal plan). Ignores blank input
+## rather than erroring, since the add-meal field has no other validation.
+func add_meal_entry(meal_name: String) -> void:
+	var trimmed := meal_name.strip_edges()
+	if trimmed == "":
+		return
+	var entry := MealEntry.new()
+	# Ticks, not Time.get_unix_time_from_system(): unique enough for user-triggered taps
+	# within a single day and doesn't depend on wall-clock/save-load round-tripping.
+	entry.id = str(Time.get_ticks_usec())
+	entry.name = trimmed
+	meal_plan.append(entry)
+	_sync_meal_quest()
+
+
+func remove_meal_entry(entry_id: String) -> void:
+	for i in meal_plan.size():
+		if meal_plan[i].id == entry_id:
+			meal_plan.remove_at(i)
+			break
+	_sync_meal_quest()
+
+
+func toggle_meal_entry(entry_id: String) -> void:
+	for entry in meal_plan:
+		if entry.id == entry_id:
+			entry.completed = not entry.completed
+			break
+	_sync_meal_quest()
+
+
+## Keeps the "meal_plan" quest's target/logged value mirroring the live meal_plan list, and
+## completes it (once, via complete_quest so quest_completed/XP fire normally) the moment
+## every planned meal is checked off. An empty plan never auto-completes — no meals planned
+## isn't "done", it's just nothing to check off yet.
+func _sync_meal_quest() -> void:
+	var quest := get_quest("meal_plan")
+	if quest == null:
+		return
+	var eaten := 0
+	for entry in meal_plan:
+		if entry.completed:
+			eaten += 1
+	quest.target_value = meal_plan.size()
+	quest.logged_value = eaten
+	if meal_plan.size() > 0 and eaten == meal_plan.size() and not quest.completed:
+		complete_quest("meal_plan", eaten)
 
 
 func all_quests_completed() -> bool:

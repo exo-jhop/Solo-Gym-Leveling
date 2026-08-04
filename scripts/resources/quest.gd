@@ -5,7 +5,7 @@ extends Resource
 
 @export var id: String
 @export var title: String
-@export var category: String  # "lift", "nutrition", "supplement", "recovery"
+@export var category: String  # "lift", "nutrition", "supplement", "recovery", "meal"
 @export var stat_reward: String  # "STR", "VIT", "AGI", "INT", "SENSE"
 @export var xp_reward: int = 0
 @export var target_value: float = 0.0  # e.g. reps, grams, sets
