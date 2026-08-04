@@ -80,6 +80,77 @@ func recent_bodyweight_logs(limit: int) -> Array:
 	return values
 
 
+## Consecutive most-recent training days on which no lift quest was completed.
+## Walks backward from the newest recorded day and stops at the first day with a
+## completed lift. Rest days are skipped (they carry no lift signal). Days with
+## is_missed set are also skipped rather than counted — record_missed_day() writes
+## an empty quest_summaries, so an unopened day is an absence, not evidence of fatigue.
+func consecutive_missed_lift_sessions() -> int:
+	var count := 0
+	for date in _sorted_dates_desc():
+		var log: DailyLog = days[date]
+		if log.is_missed:
+			continue
+		var has_lift := false
+		var completed_lift := false
+		for summary in log.quest_summaries:
+			if summary.get("category", "") == "lift":
+				has_lift = true
+				if summary.get("completed", false):
+					completed_lift = true
+					break
+		if not has_lift:
+			continue
+		if completed_lift:
+			break
+		count += 1
+	return count
+
+
+## How many of the last `limit` recorded days had was_reduced_intensity set.
+func reduced_intensity_count(limit: int) -> int:
+	var count := 0
+	for date in _sorted_dates_desc().slice(0, limit):
+		if days[date].was_reduced_intensity:
+			count += 1
+	return count
+
+
+## Completed lift summaries / total lift summaries across the last `limit` recorded
+## days. Returns -1.0 when no lift quests appear in the window, so callers can
+## distinguish "no data" from "0% completion".
+func lift_completion_rate(limit: int) -> float:
+	var completed := 0
+	var total := 0
+	for date in _sorted_dates_desc().slice(0, limit):
+		for summary in days[date].quest_summaries:
+			if summary.get("category", "") == "lift":
+				total += 1
+				if summary.get("completed", false):
+					completed += 1
+	if total == 0:
+		return -1.0
+	return float(completed) / float(total)
+
+
+## Count of recorded days in the last `limit` that contained at least one lift quest.
+func training_days_seen(limit: int) -> int:
+	var count := 0
+	for date in _sorted_dates_desc().slice(0, limit):
+		for summary in days[date].quest_summaries:
+			if summary.get("category", "") == "lift":
+				count += 1
+				break
+	return count
+
+
+func _sorted_dates_desc() -> Array:
+	var dates := days.keys()
+	dates.sort()
+	dates.reverse()
+	return dates
+
+
 func to_dict() -> Dictionary:
 	var data := {}
 	for date in days:

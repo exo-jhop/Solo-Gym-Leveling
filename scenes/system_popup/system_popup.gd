@@ -69,7 +69,7 @@ func _on_ranked_up(new_rank: String) -> void:
 
 func _on_new_pr(exercise_name: String, value: float, metric: String) -> void:
 	_queue.append({
-		"kind": "NEW PR!", "value": "%s: %s" % [exercise_name, PRTracker.format_record({"value": value, "metric": metric})], "hint": "Tap to continue",
+		"kind": "NEW PR!", "value": "%s: %s" % [exercise_name, PRTracker.format_record(value, metric)], "hint": "Tap to continue",
 		"accent": NEW_PR_ACCENT, "value_color": LEVEL_UP_COLOR,
 	})
 	_process_queue()

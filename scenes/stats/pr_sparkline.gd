@@ -4,7 +4,10 @@ extends Control
 ## Custom _draw(), same approach as radar_chart.gd — no charting addon.
 
 const MARGIN := 10.0
-const POINT_RADIUS := 3.0
+const POINT_RADIUS := 5.0
+const LINE_WIDTH := 3.0
+## Peak alpha of the area fill directly under the curve, ramping to 0 at the baseline.
+const AREA_ALPHA := 0.28
 
 var _points: Array = []  # Array of {"date": String, "value": float}, chronological
 var _line_color: Color = Color(0.0, 0.85098, 1.0, 1.0)
@@ -44,6 +47,25 @@ func _draw() -> void:
 		var y: float = MARGIN + h * (1.0 - t)
 		poly.append(Vector2(x, y))
 
-	draw_polyline(poly, _line_color, 2.0)
+	_draw_area(poly)
+	draw_polyline(poly, _line_color, LINE_WIDTH, true)
+	# Visible dot markers: the design system asks for them specifically in Stats contexts
+	# (each point here is one real new-best moment, not a sample of a continuous series).
 	for p in poly:
 		draw_circle(p, POINT_RADIUS, _line_color)
+
+
+## Gradient area under the curve, fading to transparent toward the X-axis (design system:
+## line charts carry a filled gradient area in the accent color). Per-vertex alpha on a
+## single polygon, so it costs no extra geometry beyond closing the shape along the baseline.
+func _draw_area(poly: PackedVector2Array) -> void:
+	var baseline: float = size.y - MARGIN
+	var area := poly.duplicate()
+	area.append(Vector2(poly[poly.size() - 1].x, baseline))
+	area.append(Vector2(poly[0].x, baseline))
+
+	var colors := PackedColorArray()
+	for point in area:
+		var depth: float = clampf((baseline - point.y) / maxf(size.y - MARGIN * 2.0, 1.0), 0.0, 1.0)
+		colors.append(Color(_line_color.r, _line_color.g, _line_color.b, AREA_ALPHA * depth))
+	draw_polygon(area, colors)

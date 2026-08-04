@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://dqf6r8n2h5x3k"]
+[gd_scene load_steps=6 format=3 uid="uid://dqf6r8n2h5x3k"]
 
 [ext_resource type="Script" path="res://scenes/home/home.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="2"]
 [ext_resource type="Script" path="res://scenes/stats/radar_chart.gd" id="3"]
 [ext_resource type="Material" path="res://themes/depth_background.tres" id="4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer_bar"]
+bg_color = Color(0.0392157, 0.054902, 0.0901961, 0.94)
+border_width_top = 2
+border_color = Color(0.164706, 0.227451, 0.360784, 1)
 
 [node name="Home" type="Control"]
 anchor_right = 1.0
@@ -194,24 +199,53 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "LOW ENERGY"
 
+[node name="RecoveryLabel" type="Label" parent="Margin/ScrollContainer/Root"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 24
+text = "Recovery week — 0 sessions left"
+
 [node name="QuestList" type="VBoxContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 
-[node name="HSeparator2" type="HSeparator" parent="Margin/ScrollContainer/Root"]
+[node name="BottomSpacer" type="Control" parent="Margin/ScrollContainer/Root"]
+custom_minimum_size = Vector2(0, 160)
 layout_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root"]
+[node name="FooterAnchor" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="FooterSpacer" type="Control" parent="FooterAnchor"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="FooterBar" type="PanelContainer" parent="FooterAnchor"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_footer_bar")
+
+[node name="FooterMargin" type="MarginContainer" parent="FooterAnchor/FooterBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 56
+
+[node name="ButtonRow" type="HBoxContainer" parent="FooterAnchor/FooterBar/FooterMargin"]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="StatsButton" type="Button" parent="Margin/ScrollContainer/Root/ButtonRow"]
+[node name="StatsButton" type="Button" parent="FooterAnchor/FooterBar/FooterMargin/ButtonRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "View Stats"
 
-[node name="BackButton" type="Button" parent="Margin/ScrollContainer/Root/ButtonRow"]
+[node name="BackButton" type="Button" parent="FooterAnchor/FooterBar/FooterMargin/ButtonRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"FloatingButton"

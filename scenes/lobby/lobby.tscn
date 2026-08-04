@@ -1,10 +1,61 @@
-[gd_scene load_steps=6 format=3 uid="uid://b5j2n8q1w6r4t"]
+[gd_scene load_steps=16 format=3 uid="uid://b5j2n8q1w6r4t"]
 
 [ext_resource type="Script" path="res://scenes/lobby/lobby.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="3"]
 [ext_resource type="AudioStream" path="res://res/sfx/system-notification.mp3" id="4"]
 [ext_resource type="Texture2D" path="res://res/img/lvl1.png" id="5"]
 [ext_resource type="Material" path="res://themes/depth_background.tres" id="6"]
+[ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-SemiBold.ttf" id="7"]
+
+[sub_resource type="FontVariation" id="FontVariation_display"]
+base_font = ExtResource("7")
+spacing_glyph = 2
+
+[sub_resource type="Gradient" id="Gradient_scrim"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.0392157, 0.054902, 0.0901961, 0.88, 0.0392157, 0.054902, 0.0901961, 0.42, 0.0392157, 0.054902, 0.0901961, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_scrim"]
+gradient = SubResource("Gradient_scrim")
+width = 4
+height = 256
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_backdrop"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.34, 1, 1, 1, 0.1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_backdrop"]
+gradient = SubResource("Gradient_backdrop")
+width = 4
+height = 256
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_aura"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 0.55, 1, 1, 1, 0.18, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_aura"]
+gradient = SubResource("Gradient_aura")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_platform"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 0.75, 1, 1, 1, 0.22, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_platform"]
+gradient = SubResource("Gradient_platform")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [node name="Lobby" type="Control"]
 anchor_right = 1.0
@@ -25,97 +76,393 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 200
-theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 84
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 80
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 88
 
-[node name="Root" type="VBoxContainer" parent="Margin"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 42
-alignment = 0
+horizontal_scroll_mode = 0
 
-[node name="TitleLabel" type="Label" parent="Margin/Root"]
+[node name="Root" type="VBoxContainer" parent="Margin/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 26
+
+[node name="HeaderRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Margin/ScrollContainer/Root/HeaderRow/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "SOLO: GYM LEVELING"
-horizontal_alignment = 1
 
-[node name="ReminderBanner" type="HBoxContainer" parent="Margin/Root"]
+[node name="DateLabel" type="Label" parent="Margin/ScrollContainer/Root/HeaderRow/TitleBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = "SYSTEM ONLINE"
+
+[node name="RankHexSlot" type="Control" parent="Margin/ScrollContainer/Root/HeaderRow"]
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ReminderBanner" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 14
 
-[node name="ReminderLabel" type="Label" parent="Margin/Root/ReminderBanner"]
+[node name="ReminderMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/ReminderBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="ReminderRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/ReminderBanner/ReminderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="ReminderGlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/ReminderBanner/ReminderMargin/ReminderRow"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ReminderLabel" type="Label" parent="Margin/ScrollContainer/Root/ReminderBanner/ReminderMargin/ReminderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_type_variation = &"SecondaryLabel"
 text = "Today's quests are still open."
 autowrap_mode = 2
-vertical_alignment = 1
 
-[node name="DismissButton" type="Button" parent="Margin/Root/ReminderBanner"]
+[node name="DismissButton" type="Button" parent="Margin/ScrollContainer/Root/ReminderBanner/ReminderMargin/ReminderRow"]
+custom_minimum_size = Vector2(224, 144)
 layout_mode = 2
-text = "Dismiss"
+size_flags_vertical = 4
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 32
+text = "DISMISS"
 
-[node name="RankTitleLabel" type="Label" parent="Margin/Root"]
-layout_mode = 2
-theme_type_variation = &"AccentLabel"
-text = "Rank E — Novice"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
-layout_mode = 2
-
-[node name="ContentRow" type="HBoxContainer" parent="Margin/Root"]
+[node name="HeroCard" type="PanelContainer" parent="Margin/ScrollContainer/Root"]
+custom_minimum_size = Vector2(0, 700)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 24
 
-[node name="CharacterPanel" type="TextureRect" parent="Margin/Root/ContentRow"]
-custom_minimum_size = Vector2(0, 400)
+[node name="HeroMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/HeroCard"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 26
+
+[node name="HeroStack" type="VBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="PortraitFrame" type="Control" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack"]
+clip_contents = true
+custom_minimum_size = Vector2(0, 500)
+layout_mode = 2
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.9
+mouse_filter = 2
+
+[node name="Backdrop" type="TextureRect" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_backdrop")
+expand_mode = 1
+
+[node name="AuraGlow" type="TextureRect" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -430.0
+offset_right = 470.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_aura")
+expand_mode = 1
+
+[node name="PlatformGlow" type="TextureRect" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -390.0
+offset_top = -250.0
+offset_right = 390.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_platform")
+expand_mode = 1
+
+[node name="CharacterPanel" type="TextureRect" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("5")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ButtonsColumn" type="VBoxContainer" parent="Margin/Root/ContentRow"]
+[node name="TopScrim" type="TextureRect" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 300.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_scrim")
+expand_mode = 1
+
+[node name="OverlayMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 210.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 8
+
+[node name="OverlayRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="IdentityBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.1
-theme_override_constants/separation = 32
+size_flags_vertical = 0
+theme_override_constants/separation = 2
+
+[node name="HunterTitleLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/IdentityBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "NOVICE"
+
+[node name="LevelLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/IdentityBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 28
+text = "LEVEL 1"
+
+[node name="StreakPill" type="PanelContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="StreakMargin" type="MarginContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/StreakPill"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 12
+
+[node name="StreakRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/StreakPill/StreakMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FlameSlot" type="Control" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/StreakPill/StreakMargin/StreakRow"]
+custom_minimum_size = Vector2(40, 46)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="StreakCountLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/StreakPill/StreakMargin/StreakRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"GoldLabel"
+text = "0"
+vertical_alignment = 1
+
+[node name="StreakUnitLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/PortraitFrame/OverlayMargin/OverlayRow/StreakPill/StreakMargin/StreakRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = "DAYS"
+vertical_alignment = 1
+
+[node name="XPBox" type="VBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="XPHeaderRow" type="HBoxContainer" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/XPBox"]
+layout_mode = 2
+
+[node name="XPTagLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/XPBox/XPHeaderRow"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = "EXPERIENCE"
+
+[node name="XPValueLabel" type="Label" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/XPBox/XPHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"AccentLabel"
+theme_override_font_sizes/font_size = 30
+text = "0 / 100"
+horizontal_alignment = 2
+
+[node name="XPBar" type="ProgressBar" parent="Margin/ScrollContainer/Root/HeroCard/HeroMargin/HeroStack/XPBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+value = 0.0
+show_percentage = false
+
+[node name="QuestsButton" type="Button" parent="Margin/ScrollContainer/Root"]
+custom_minimum_size = Vector2(0, 176)
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 40
+text = "TODAY'S QUESTS"
 alignment = 0
 
-[node name="QuestsButton" type="Button" parent="Margin/Root/ContentRow/ButtonsColumn"]
-custom_minimum_size = Vector2(0, 124)
-layout_mode = 2
-size_flags_vertical = 3
-text = "Today's Quests"
+[node name="GlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/QuestsButton"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 36.0
+offset_top = -32.0
+offset_right = 100.0
+offset_bottom = 32.0
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="StatsButton" type="Button" parent="Margin/Root/ContentRow/ButtonsColumn"]
-custom_minimum_size = Vector2(0, 124)
-layout_mode = 2
-size_flags_vertical = 3
-text = "Stats"
+[node name="CountLabel" type="Label" parent="Margin/ScrollContainer/Root/QuestsButton"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -30.0
+offset_right = -34.0
+offset_bottom = 30.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"AccentLabel"
+text = "0 / 0"
+horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="TrainingLogButton" type="Button" parent="Margin/Root/ContentRow/ButtonsColumn"]
-custom_minimum_size = Vector2(0, 124)
+[node name="NavGrid" type="GridContainer" parent="Margin/ScrollContainer/Root"]
 layout_mode = 2
-size_flags_vertical = 3
-text = "Training Log"
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 22
+columns = 2
 
-[node name="WeeklySummaryButton" type="Button" parent="Margin/Root/ContentRow/ButtonsColumn"]
-custom_minimum_size = Vector2(0, 124)
+[node name="StatsButton" type="Button" parent="Margin/ScrollContainer/Root/NavGrid"]
+custom_minimum_size = Vector2(0, 158)
 layout_mode = 2
-size_flags_vertical = 3
-text = "Weekly Summary"
+size_flags_horizontal = 3
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 34
+text = "STATS"
+alignment = 0
 
-[node name="SettingsButton" type="Button" parent="Margin/Root/ContentRow/ButtonsColumn"]
-custom_minimum_size = Vector2(0, 124)
+[node name="GlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/NavGrid/StatsButton"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 34.0
+offset_top = -28.0
+offset_right = 90.0
+offset_bottom = 28.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TrainingLogButton" type="Button" parent="Margin/ScrollContainer/Root/NavGrid"]
+custom_minimum_size = Vector2(0, 158)
 layout_mode = 2
-size_flags_vertical = 3
-text = "Settings"
+size_flags_horizontal = 3
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 34
+text = "TRAINING LOG"
+alignment = 0
+
+[node name="GlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/NavGrid/TrainingLogButton"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 34.0
+offset_top = -28.0
+offset_right = 90.0
+offset_bottom = 28.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="WeeklySummaryButton" type="Button" parent="Margin/ScrollContainer/Root/NavGrid"]
+custom_minimum_size = Vector2(0, 158)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 34
+text = "WEEKLY SUMMARY"
+alignment = 0
+
+[node name="GlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/NavGrid/WeeklySummaryButton"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 34.0
+offset_top = -28.0
+offset_right = 90.0
+offset_bottom = 28.0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SettingsButton" type="Button" parent="Margin/ScrollContainer/Root/NavGrid"]
+custom_minimum_size = Vector2(0, 158)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = SubResource("FontVariation_display")
+theme_override_font_sizes/font_size = 34
+text = "SETTINGS"
+alignment = 0
+
+[node name="GlyphSlot" type="Control" parent="Margin/ScrollContainer/Root/NavGrid/SettingsButton"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 34.0
+offset_top = -28.0
+offset_right = 90.0
+offset_bottom = 28.0
+grow_vertical = 2
+mouse_filter = 2

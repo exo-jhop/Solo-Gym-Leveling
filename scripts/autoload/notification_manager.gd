@@ -29,7 +29,10 @@ var reminder_enabled: Dictionary = {
 func should_remind(category: String = "general") -> bool:
 	if not reminder_enabled.get(category, false):
 		return false
-	var hour: int = Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_system()).hour
+	# Local wall-clock hour. get_unix_time_from_system() is UTC and
+	# get_datetime_dict_from_unix_time() does not convert back, so that pairing made an
+	# 8pm reminder fire at 8pm UTC — hours early or late for most users.
+	var hour: int = Time.get_time_dict_from_system().hour
 	if hour < reminder_hours.get(category, 20):
 		return false
 	return _quests_incomplete(category)

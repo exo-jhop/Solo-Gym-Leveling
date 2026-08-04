@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dz8k4m1q3y6w9"]
+[gd_scene load_steps=4 format=3 uid="uid://dz8k4m1q3y6w9"]
 
 [ext_resource type="Script" path="res://scenes/settings/settings.gd" id="1"]
 [ext_resource type="Theme" path="res://themes/system_theme.tres" id="2"]
+[ext_resource type="Material" path="res://themes/depth_background.tres" id="3"]
 
 [node name="Settings" type="Control"]
 anchor_right = 1.0
@@ -10,6 +11,7 @@ theme = ExtResource("2")
 script = ExtResource("1")
 
 [node name="Background" type="ColorRect" parent="."]
+material = ExtResource("3")
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -19,235 +21,298 @@ color = Color(0.0392157, 0.054902, 0.0901961, 1)
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 48
+theme_override_constants/margin_top = 80
 theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 48
+theme_override_constants/margin_bottom = 88
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 22
 
-[node name="TitleLabel" type="Label" parent="Margin/Root"]
+[node name="TitleBox" type="VBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Margin/Root/TitleBox"]
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "SETTINGS"
-horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Margin/Root/TitleBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
+text = "HUNTER CONFIGURATION"
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/Root"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="Content" type="VBoxContainer" parent="Margin/Root/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 28
+theme_override_constants/separation = 22
 
 [node name="ProfileCard" type="PanelContainer" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 
-[node name="ProfileCardMargin" type="MarginContainer" parent="Margin/Root/Scroll/Content/ProfileCard"]
+[node name="ProfileSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 22
+theme_override_constants/separation = 16
 
-[node name="ProfileSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin"]
+[node name="ProfileHeaderRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="ProfileHeader" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
+[node name="ProfileGlyphSlot" type="Control" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/ProfileHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
 layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ProfileHeader" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/ProfileHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
 text = "PROFILE"
 
-[node name="GoalRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
+[node name="GoalRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="GoalLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/GoalRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Goal"
-
-[node name="GoalInput" type="OptionButton" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/GoalRow"]
-layout_mode = 2
-custom_minimum_size = Vector2(280, 0)
-
-[node name="WeightRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="WeightLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/WeightRow"]
+[node name="GoalLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/GoalRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Weight (kg)"
+size_flags_vertical = 4
+text = "GOAL"
 
-[node name="WeightInput" type="SpinBox" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/WeightRow"]
+[node name="GoalInput" type="OptionButton" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/GoalRow"]
+custom_minimum_size = Vector2(400, 144)
+layout_mode = 2
+
+[node name="WeightRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="WeightLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/WeightRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "WEIGHT (KG)"
+
+[node name="WeightInput" type="SpinBox" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/WeightRow"]
+custom_minimum_size = Vector2(260, 144)
 layout_mode = 2
 min_value = 0.0
 max_value = 300.0
 step = 0.1
-custom_minimum_size = Vector2(160, 0)
 
-[node name="DaysRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
+[node name="DaysRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="DaysLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/DaysRow"]
+[node name="DaysLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/DaysRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Days per week"
+size_flags_vertical = 4
+text = "DAYS PER WEEK"
 
-[node name="DaysInput" type="SpinBox" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/DaysRow"]
+[node name="DaysInput" type="SpinBox" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/DaysRow"]
+custom_minimum_size = Vector2(260, 144)
 layout_mode = 2
 min_value = 3.0
 max_value = 6.0
 step = 1.0
 value = 4.0
-custom_minimum_size = Vector2(160, 0)
 
-[node name="EquipmentRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
+[node name="EquipmentRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="EquipmentLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/EquipmentRow"]
+[node name="EquipmentLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/EquipmentRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Equipment access"
+size_flags_vertical = 4
+text = "EQUIPMENT ACCESS"
 
-[node name="EquipmentInput" type="OptionButton" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection/EquipmentRow"]
+[node name="EquipmentInput" type="OptionButton" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection/EquipmentRow"]
+custom_minimum_size = Vector2(400, 144)
 layout_mode = 2
-custom_minimum_size = Vector2(280, 0)
 
-[node name="CalculatedLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileCardMargin/ProfileSection"]
+[node name="CalculatedLabel" type="Label" parent="Margin/Root/Scroll/Content/ProfileCard/ProfileSection"]
 layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
 autowrap_mode = 2
-
-[node name="HSeparator3" type="HSeparator" parent="Margin/Root/Scroll/Content"]
-layout_mode = 2
 
 [node name="NutritionCard" type="PanelContainer" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 
-[node name="NutritionCardMargin" type="MarginContainer" parent="Margin/Root/Scroll/Content/NutritionCard"]
+[node name="NutritionSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 22
+theme_override_constants/separation = 16
 
-[node name="NutritionSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin"]
+[node name="NutritionHeaderRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="NutritionHeader" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection"]
+[node name="NutritionGlyphSlot" type="Control" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/NutritionHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "NUTRITION & SUPPLEMENTS"
+size_flags_vertical = 4
 
-[node name="ProteinRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="ProteinLabel" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/ProteinRow"]
+[node name="NutritionHeader" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/NutritionHeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Protein target (g)"
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
+text = "NUTRITION & SUPPLEMENTS"
 
-[node name="ProteinInput" type="SpinBox" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/ProteinRow"]
+[node name="ProteinRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ProteinLabel" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/ProteinRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "PROTEIN TARGET (G)"
+
+[node name="ProteinInput" type="SpinBox" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/ProteinRow"]
+custom_minimum_size = Vector2(260, 144)
 layout_mode = 2
 min_value = 0.0
 max_value = 400.0
 step = 1.0
 value = 90.0
 
-[node name="CreatineRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection"]
+[node name="CreatineRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="CreatineLabel" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/CreatineRow"]
+[node name="CreatineLabel" type="Label" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/CreatineRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Creatine dose (g)"
+size_flags_vertical = 4
+text = "CREATINE DOSE (G)"
 
-[node name="CreatineInput" type="SpinBox" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionCardMargin/NutritionSection/CreatineRow"]
+[node name="CreatineInput" type="SpinBox" parent="Margin/Root/Scroll/Content/NutritionCard/NutritionSection/CreatineRow"]
+custom_minimum_size = Vector2(260, 144)
 layout_mode = 2
 min_value = 0.0
 max_value = 20.0
 step = 0.5
 value = 5.0
 
-[node name="HSeparator" type="HSeparator" parent="Margin/Root/Scroll/Content"]
-layout_mode = 2
-
 [node name="NotificationCard" type="PanelContainer" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 
-[node name="NotificationCardMargin" type="MarginContainer" parent="Margin/Root/Scroll/Content/NotificationCard"]
+[node name="NotificationSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NotificationCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 22
+theme_override_constants/separation = 16
 
-[node name="NotificationSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationCardMargin"]
+[node name="NotificationHeaderRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="NotificationHeader" type="Label" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationCardMargin/NotificationSection"]
+[node name="NotificationGlyphSlot" type="Control" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationSection/NotificationHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
 layout_mode = 2
+size_flags_vertical = 4
+
+[node name="NotificationHeader" type="Label" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationSection/NotificationHeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
 text = "END-OF-DAY REMINDER"
 
-[node name="ReminderList" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationCardMargin/NotificationSection"]
+[node name="ReminderList" type="VBoxContainer" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationSection"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="ReminderNoticeLabel" type="Label" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationCardMargin/NotificationSection"]
+[node name="ReminderNoticeLabel" type="Label" parent="Margin/Root/Scroll/Content/NotificationCard/NotificationSection"]
 layout_mode = 2
 theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 26
 autowrap_mode = 2
 text = "This is an in-app reminder shown when you open the app — it can't notify you while the app is closed."
 
-[node name="HSeparator2" type="HSeparator" parent="Margin/Root/Scroll/Content"]
+[node name="ProgramCard" type="PanelContainer" parent="Margin/Root/Scroll/Content"]
 layout_mode = 2
 
-[node name="ProgramSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content"]
+[node name="ProgramSection" type="VBoxContainer" parent="Margin/Root/Scroll/Content/ProgramCard"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 18
 
-[node name="ProgramHeader" type="Label" parent="Margin/Root/Scroll/Content/ProgramSection"]
+[node name="ProgramHeaderRow" type="HBoxContainer" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection"]
 layout_mode = 2
-text = "Training Program"
+theme_override_constants/separation = 16
 
-[node name="RegenerateButton" type="Button" parent="Margin/Root/Scroll/Content/ProgramSection"]
+[node name="ProgramGlyphSlot" type="Control" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection/ProgramHeaderRow"]
+custom_minimum_size = Vector2(46, 46)
 layout_mode = 2
-text = "Regenerate Program"
+size_flags_vertical = 4
 
-[node name="ProgramList" type="VBoxContainer" parent="Margin/Root/Scroll/Content/ProgramSection"]
+[node name="ProgramHeader" type="Label" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection/ProgramHeaderRow"]
 layout_mode = 2
-theme_override_constants/separation = 22
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 36
+text = "TRAINING PROGRAM"
+
+[node name="ProgramList" type="VBoxContainer" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection"]
+layout_mode = 2
+theme_override_constants/separation = 26
+
+[node name="RegenerateButton" type="Button" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection"]
+custom_minimum_size = Vector2(0, 144)
+layout_mode = 2
+text = "REGENERATE PROGRAM"
+
+[node name="RegenerateNoticeLabel" type="Label" parent="Margin/Root/Scroll/Content/ProgramCard/ProgramSection"]
+layout_mode = 2
+theme_type_variation = &"SecondaryLabel"
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 2
+text = "Rebuilds every training day from your goal, days per week and equipment — this replaces the exercises above."
 
 [node name="StatusLabel" type="Label" parent="Margin/Root"]
+modulate = Color(1, 1, 1, 0)
 layout_mode = 2
+theme_type_variation = &"AccentLabel"
+theme_override_font_sizes/font_size = 30
+text = ""
 horizontal_alignment = 1
 
 [node name="ButtonRow" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 22
+theme_override_constants/separation = 20
 
 [node name="SaveButton" type="Button" parent="Margin/Root/ButtonRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Save"
-
-[node name="BackButton" type="Button" parent="Margin/Root/ButtonRow"]
+custom_minimum_size = Vector2(0, 152)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"FloatingButton"
-text = "Back to Lobby"
+text = "SAVE"
+
+[node name="BackButton" type="Button" parent="Margin/Root/ButtonRow"]
+custom_minimum_size = Vector2(0, 152)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"FloatingButton"
+text = "BACK TO LOBBY"
 
 [node name="RegenerateConfirm" type="ConfirmationDialog" parent="."]
 title = "Regenerate Program?"
-dialog_text = "This will replace your current program. Continue?"
+dialog_text = "This replaces every exercise in your current program. Continue?"
+
+[node name="UnsavedConfirm" type="ConfirmationDialog" parent="."]
+title = "Unsaved Changes"
+ok_button_text = "Leave"
+dialog_text = "Your edits haven't been saved yet. Leave anyway?"

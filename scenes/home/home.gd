@@ -37,9 +37,10 @@ const MONTH_NAMES := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "S
 @onready var xp_label: Label = $Margin/ScrollContainer/Root/XPSection/XPMargin/XPBox/XPBarStack/XPLabel
 @onready var radar_chart: Control = $Margin/ScrollContainer/Root/RadarChart
 @onready var low_energy_toggle: CheckBox = $Margin/ScrollContainer/Root/QuestsHeaderRow/LowEnergyToggle
+@onready var recovery_label: Label = $Margin/ScrollContainer/Root/RecoveryLabel
 @onready var quest_list: VBoxContainer = $Margin/ScrollContainer/Root/QuestList
-@onready var stats_button: Button = $Margin/ScrollContainer/Root/ButtonRow/StatsButton
-@onready var lobby_button: Button = $Margin/ScrollContainer/Root/ButtonRow/BackButton
+@onready var stats_button: Button = $FooterAnchor/FooterBar/FooterMargin/ButtonRow/StatsButton
+@onready var lobby_button: Button = $FooterAnchor/FooterBar/FooterMargin/ButtonRow/BackButton
 
 # Set right before a completion-triggered rebuild so the freshly rebuilt card
 # for this quest can receive the glow pulse (cards are recreated from scratch
@@ -138,6 +139,13 @@ func _refresh_quests() -> void:
 	low_energy_toggle.set_pressed_no_signal(QuestManager.low_energy_mode)
 	low_energy_toggle.disabled = QuestManager.any_lift_quest_completed()
 
+	# Without this, an auto-applied recovery-week reduction (adaptive daily load, v5) has
+	# no on-screen explanation and the pre-checked toggle reads as a bug.
+	recovery_label.visible = QuestManager.recovery_week_active()
+	if recovery_label.visible:
+		var days_left := QuestManager.recovery_days_remaining
+		recovery_label.text = "Recovery week — %d session%s left" % [days_left, "" if days_left == 1 else "s"]
+
 	var tween := create_tween()
 	tween.tween_property(quest_list, "modulate:a", 0.0, 0.1) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -153,6 +161,13 @@ func _rebuild_quest_cards() -> void:
 	for quest in QuestManager.current_quests:
 		var card := PanelContainer.new()
 		var card_style := _make_chamfered_style(SUCCESS_COLOR if quest.completed else PRIMARY_ACCENT)
+		# Repeated list rows drop the chamfer cut and the diagonal accent trace riding along
+		# it (design system: diagonal corners are reserved for single feature cards, not a
+		# container that repeats down a list) — the state color reads through a full border
+		# instead so active/completed quests still look different at a glance.
+		card_style.chamfer_size = 0.0
+		card_style.border_color = card_style.accent_color
+		card_style.border_width = 2.0
 		card.add_theme_stylebox_override("panel", card_style)
 		if quest.completed:
 			card.modulate.a = 0.55
@@ -170,8 +185,11 @@ func _rebuild_quest_cards() -> void:
 
 		# Lift quests need a real logged value/weight (set via Quest Detail's "LOG" flow) —
 		# a bare checkbox here would complete them with target_value (a set count)
-		# misrecorded as reps, polluting PRTracker. Only non-lift quests get the checkbox.
-		if quest.category != "lift":
+		# misrecorded as reps, polluting PRTracker. Meal-plan quests complete themselves
+		# once every planned meal is checked off on the Meal Plan screen — a bare checkbox
+		# here would let a quest with zero (or unfinished) planned meals be ticked complete
+		# without the user ever opening that screen. Both instead only get the LOG button.
+		if quest.category != "lift" and quest.category != "meal":
 			var check := CheckBox.new()
 			check.text = ""
 			check.custom_minimum_size = Vector2(56, 56)
@@ -245,11 +263,17 @@ func _build_stat_pill(stat_reward: String) -> PanelContainer:
 	return pill
 
 
-## Lift quests: sets/rep-range (the real per-completion target). Nutrition/supplement
-## quests: their target_value+unit (also real data, e.g. "90 g"). Recovery has neither.
+## Lift quests: sets/rep-range (the real per-completion target). Meal-plan quests: live
+## eaten/planned counts, since target_value grows as meals are added throughout the day.
+## Nutrition/supplement quests: their target_value+unit (also real data, e.g. "90 g").
+## Recovery has neither.
 func _target_text(quest: Quest) -> String:
 	if quest.category == "lift":
 		return "%d sets · %s reps" % [int(quest.target_value), quest.rep_range]
+	if quest.category == "meal":
+		if quest.target_value <= 0:
+			return "No meals planned yet"
+		return "%d/%d meals" % [int(quest.logged_value), int(quest.target_value)]
 	if quest.unit != "":
 		var value_text := str(int(quest.target_value)) if quest.target_value == floor(quest.target_value) else str(quest.target_value)
 		return "%s %s" % [value_text, quest.unit]
@@ -281,23 +305,34 @@ func _quest_text(text: String, completed: bool, variation: StringName = &"") -> 
 	return rich
 
 
+## Quest cards have no chamfer to trace an accent glow along (see _rebuild_quest_cards),
+## so the completion pulse instead flashes the border that now carries the state color.
 func _pulse_card(style: ChamferedStyleBox) -> void:
-	var base_width := style.accent_width
+	var base_width := style.border_width
 	var tween := create_tween()
-	tween.tween_method(func(w): _set_accent_width(style, w), base_width, base_width + 4.0, 0.18) \
+	tween.tween_method(func(w): _set_border_width(style, w), base_width, base_width + 3.0, 0.18) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_method(func(w): _set_accent_width(style, w), base_width + 4.0, base_width, 0.35) \
+	tween.tween_method(func(w): _set_border_width(style, w), base_width + 3.0, base_width, 0.35) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
-func _set_accent_width(style: ChamferedStyleBox, width: float) -> void:
-	style.accent_width = width
+func _set_border_width(style: ChamferedStyleBox, width: float) -> void:
+	style.border_width = width
 	style.emit_changed()
 
 
+## set_low_energy_mode() emits quests_generated, which _refresh_quests is already
+## connected to — calling it here as well started a second crossfade on top of the
+## first, and the two tweens fighting over quest_list's alpha left the list dimmed.
+## Turning the toggle off during an active recovery week (adaptive daily load, v5) must
+## cancel it too — otherwise the reduction silently reapplies tomorrow and the toggle
+## reads as broken. cancel_recovery_week() only clears the counter; set_low_energy_mode(false)
+## still does the actual today's-quests reversal, same as a manual low-energy toggle-off.
 func _on_low_energy_toggled(pressed: bool) -> void:
+	if not pressed and QuestManager.recovery_week_active():
+		QuestManager.cancel_recovery_week()
+		SaveManager.save_game()
 	QuestManager.set_low_energy_mode(pressed)
-	_refresh_quests()
 
 
 func _on_quest_toggled(pressed: bool, quest: Quest) -> void:
@@ -375,7 +410,12 @@ func _on_lobby_pressed() -> void:
 
 func _on_log_pressed(quest: Quest) -> void:
 	QuestManager.selected_quest_id = quest.id
-	SceneTransition.go_to_scene("res://scenes/quest_detail/quest_detail.tscn")
+	# Meal-plan quests need an editable multi-item checklist, not Quest Detail's single
+	# logged-value/weight form, so they get their own screen instead.
+	if quest.category == "meal":
+		SceneTransition.go_to_scene("res://scenes/meal_plan/meal_plan.tscn")
+	else:
+		SceneTransition.go_to_scene("res://scenes/quest_detail/quest_detail.tscn")
 
 
 ## Generic geometric avatar placeholder (no copyrighted character art per design
@@ -427,40 +467,3 @@ class AvatarRing extends Control:
 			Vector2(center.x + shoulder_width * 0.5, center.y + r * 0.7),
 		])
 		draw_colored_polygon(shoulder_points, icon_color)
-
-
-## Rank hexagon badge (design system v2: rank color applies to rank badge/hexagon
-## nodes). Flat hexagon fill with a rank-colored border and centered rank letter.
-class RankHexBadge extends Control:
-	var rank_color: Color = Color.WHITE
-	var rank_letter: String = "E"
-	var _label: Label
-
-	func _ready() -> void:
-		_label = Label.new()
-		_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_label.theme_type_variation = &"HeaderLabel"
-		add_child(_label)
-
-	func _draw() -> void:
-		var points := _hex_points()
-		var fill_color := rank_color.darkened(0.75)
-		draw_colored_polygon(points, fill_color)
-
-		var border_points := points.duplicate()
-		border_points.append(points[0])
-		draw_polyline(border_points, rank_color, 4.0, true)
-
-		_label.text = rank_letter
-		_label.add_theme_color_override("font_color", rank_color)
-
-	func _hex_points() -> PackedVector2Array:
-		var center := size / 2.0
-		var r: float = min(size.x, size.y) / 2.0 - 2.0
-		var points := PackedVector2Array()
-		for i in range(6):
-			var angle := deg_to_rad(60.0 * i - 90.0)
-			points.append(center + Vector2(cos(angle), sin(angle)) * r)
-		return points

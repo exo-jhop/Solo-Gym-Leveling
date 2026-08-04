@@ -10,13 +10,13 @@ extends StyleBox
 ## or scene required at call sites.
 ##
 ## Depth pass: the shape alone read as flat because fill was a single solid color with
-## a 1px border and nothing separating a card from the surface behind it. Four cheap
+## a 1px border and nothing separating a card from the surface behind it. Three cheap
 ## additions give elevation without any generated art — a drop shadow (card sits above
-## the background), a vertical fill gradient plus a top highlight (implies a light
-## source above), and a bloom along the accent edges (the accent reads as emissive
-## rather than painted on). All are derived from fill_color/accent_color, so existing
-## call sites keep working unchanged and callers that set a translucent fill (see
-## NavButtonStyle's pressed state) still get a translucent card.
+## the background), a vertical fill gradient (implies a light source above), and a
+## bloom along the accent edges (the accent reads as emissive rather than painted on).
+## All are derived from fill_color/accent_color, so existing call sites keep working
+## unchanged and callers that set a translucent fill (see NavButtonStyle's pressed
+## state) still get a translucent card.
 
 @export var fill_color: Color = Color(0.0745098, 0.101961, 0.168627, 1.0)  # #131A2B surface
 @export var border_color: Color = Color(0.164706, 0.227451, 0.360784, 1.0)  # #2A3A5C divider
@@ -32,8 +32,6 @@ extends StyleBox
 @export var shadow_offset: Vector2 = Vector2(0.0, 7.0)
 ## How far the fill gradient departs from fill_color at the top/bottom edges.
 @export_range(0.0, 1.0) var gradient_depth: float = 0.22
-## Alpha of the 1px lit line along the top (square) edge.
-@export_range(0.0, 1.0) var highlight_strength: float = 0.16
 ## Total alpha of the bloom stacked outside the accent line. 0 disables the bloom.
 @export_range(0.0, 1.0) var glow_strength: float = 0.55
 
@@ -62,7 +60,6 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 
 	_draw_shadow(to_canvas_item, rect)
 	_draw_fill(to_canvas_item, rect, points)
-	_draw_highlight(to_canvas_item, points)
 
 	if border_width > 0.0:
 		var border_points := points.duplicate()
@@ -125,19 +122,6 @@ func _draw_fill(to_canvas_item: RID, rect: Rect2, points: PackedVector2Array) ->
 		var t: float = clampf((point.y - rect.position.y) / maxf(rect.size.y, 1.0), 0.0, 1.0)
 		fill_colors.append(top_color.lerp(bottom_color, t))
 	RenderingServer.canvas_item_add_polygon(to_canvas_item, points, fill_colors)
-
-
-## Lit line along the top edge only — the edge facing the implied light source. Runs
-## between the two square-cornered vertices so it stops short of the TR chamfer
-## instead of fighting the accent line that traces it.
-func _draw_highlight(to_canvas_item: RID, points: PackedVector2Array) -> void:
-	if highlight_strength <= 0.0:
-		return
-
-	var highlight := fill_color.lightened(0.55)
-	highlight.a = highlight_strength
-	var segment := PackedVector2Array([points[0], points[1]])
-	RenderingServer.canvas_item_add_polyline(to_canvas_item, segment, PackedColorArray([highlight, highlight]), 1.0, true)
 
 
 ## The accent traces only the two chamfered edges (design system v2). Stacking wider,

@@ -12,6 +12,11 @@ const MAX_BACKFILL_DAYS := 30
 # How often the weekly weight-trend recalibration check runs (feature: weekly recalibration).
 const RECALIBRATION_INTERVAL_DAYS := 7
 
+# How often a load-adjustment suggestion may be staged (feature: adaptive daily load, v5).
+# The underlying signals are still evaluated every day so a fatigue trigger is caught the
+# day it becomes true, not up to this many days later — only surfacing the popup is throttled.
+const LOAD_ADJUSTMENT_COOLDOWN_DAYS := 5
+
 # How often the streak forgiveness freeze replenishes (spec v2 section 3: "one freeze per
 # week, non-negotiable").
 const STREAK_FREEZE_INTERVAL_DAYS := 7
@@ -19,6 +24,7 @@ const STREAK_FREEZE_INTERVAL_DAYS := 7
 var last_opened_date: String = ""
 var last_recalibration_date: String = ""
 var last_freeze_replenish_date: String = ""
+var last_load_adjustment_date: String = ""
 
 
 func _ready() -> void:
@@ -44,11 +50,17 @@ func save_game() -> void:
 	for day in QuestManager.training_cycle:
 		training_cycle_dicts.append(day.to_dict())
 
+	var meal_plan_dicts: Array = []
+	for entry in QuestManager.meal_plan:
+		meal_plan_dicts.append(entry.to_dict())
+
 	var data := {
 		"save_version": SAVE_VERSION,
 		"last_opened_date": last_opened_date,
 		"last_recalibration_date": last_recalibration_date,
 		"last_freeze_replenish_date": last_freeze_replenish_date,
+		"last_load_adjustment_date": last_load_adjustment_date,
+		"recovery_days_remaining": QuestManager.recovery_days_remaining,
 		"cycle_day_index": QuestManager.cycle_day_index,
 		"hunter_stats": GameManager.hunter_stats.to_dict(),
 		"current_quests": quest_dicts,
@@ -58,6 +70,7 @@ func save_game() -> void:
 		"training_cycle": training_cycle_dicts,
 		"protein_target_g": QuestManager.protein_target_g,
 		"creatine_target_g": QuestManager.creatine_target_g,
+		"meal_plan": meal_plan_dicts,
 		"hunter_profile": ProfileManager.profile.to_dict(),
 		"low_energy_mode": QuestManager.low_energy_mode,
 		"reminder_hours": NotificationManager.reminder_hours,
@@ -98,6 +111,8 @@ func load_game() -> bool:
 	# last_opened_date, so a long-idle reinstall doesn't immediately fire a stale suggestion.
 	last_recalibration_date = data.get("last_recalibration_date", "")
 	last_freeze_replenish_date = data.get("last_freeze_replenish_date", "")
+	last_load_adjustment_date = data.get("last_load_adjustment_date", "")
+	QuestManager.recovery_days_remaining = data.get("recovery_days_remaining", 0)
 	QuestManager.cycle_day_index = data.get("cycle_day_index", 0)
 	GameManager.hunter_stats = HunterStats.from_dict(data.get("hunter_stats", {}))
 
@@ -117,6 +132,10 @@ func load_game() -> bool:
 	QuestManager.protein_target_g = data.get("protein_target_g", QuestManager.protein_target_g)
 	QuestManager.creatine_target_g = data.get("creatine_target_g", QuestManager.creatine_target_g)
 	QuestManager.low_energy_mode = data.get("low_energy_mode", false)
+
+	QuestManager.meal_plan.clear()
+	for entry_data in data.get("meal_plan", []):
+		QuestManager.meal_plan.append(MealEntry.from_dict(entry_data))
 
 	# Migration (spec v4 6): a save from before HunterProfile existed has no "hunter_profile"
 	# key at all. Build one from what's already known instead of reopening full onboarding.
@@ -167,11 +186,43 @@ func check_new_day() -> void:
 		for i in range(1, missed_days + 1):
 			HistoryManager.record_missed_day(_date_plus_days(last_opened_date, i))
 
+	_check_load_adjustment(today)
 	_check_recalibration(today)
 	_check_streak_freeze_replenish(today)
 	QuestManager.generate_daily_quests()
 	last_opened_date = today
 	save_game()
+
+
+## Daily adherence/fatigue check (feature: adaptive daily load, v5). The underlying signals
+## are recomputed from HistoryManager every day so a fatigue trigger (e.g. 2 missed lift
+## sessions) is caught the day it becomes true rather than up to LOAD_ADJUSTMENT_COOLDOWN_DAYS
+## later — but staging a suggestion for the popup is throttled to at most once per cooldown,
+## and a dismissal starts that same cooldown since last_load_adjustment_date only advances
+## when a suggestion is actually staged.
+func _check_load_adjustment(today: String) -> void:
+	if last_load_adjustment_date == "":
+		last_load_adjustment_date = today
+		return
+	# One decision per launch (v5 spec 3.5): load adjustment runs first in check_new_day(),
+	# so on a week where both this and recalibration would fire, recalibration yields instead.
+	if not QuestManager.pending_recalibration.is_empty():
+		return
+
+	var signals := {
+		"missed_lift_sessions": HistoryManager.consecutive_missed_lift_sessions(),
+		"reduced_days": HistoryManager.reduced_intensity_count(LoadAdjuster.REDUCED_DAYS_WINDOW),
+		"lift_completion_rate": HistoryManager.lift_completion_rate(LoadAdjuster.PROGRESS_WINDOW_DAYS),
+		"training_days_seen": HistoryManager.training_days_seen(LoadAdjuster.PROGRESS_WINDOW_DAYS),
+	}
+	var suggestion := LoadAdjuster.evaluate(signals)
+	if suggestion.is_empty():
+		return
+	if _days_between(last_load_adjustment_date, today) < LOAD_ADJUSTMENT_COOLDOWN_DAYS:
+		return
+
+	QuestManager.pending_load_adjustment = suggestion
+	last_load_adjustment_date = today
 
 
 ## Weekly weight-trend check (feature: weekly recalibration). Runs at most once every
@@ -182,6 +233,12 @@ func _check_recalibration(today: String) -> void:
 		last_recalibration_date = today
 		return
 	if _days_between(last_recalibration_date, today) < RECALIBRATION_INTERVAL_DAYS:
+		return
+	# Adaptive daily load (v5) takes priority — a recovery week or a fresh load-adjustment
+	# suggestion means volume shouldn't also be escalated by recalibration this cycle. Not
+	# advancing last_recalibration_date here means this retries daily until the conflict clears,
+	# instead of waiting a full week.
+	if QuestManager.recovery_week_active() or not QuestManager.pending_load_adjustment.is_empty():
 		return
 
 	var logs := HistoryManager.recent_bodyweight_logs(ProgramRecalibrator.MIN_LOGS)
